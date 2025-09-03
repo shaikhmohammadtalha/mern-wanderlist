@@ -1,0 +1,13 @@
+{
+  "name": "wanderlist",
+  "version": "1.0.0",
+  "description": "A full-stack MERN application where users can plan, organize, and visualize their dream travel destinations on an interactive world map.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
