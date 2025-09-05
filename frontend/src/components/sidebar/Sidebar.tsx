@@ -6,7 +6,7 @@ interface SidebarProps {
 	onClose: () => void;
 	destinations: Destination[];
 	onDelete?: (id: string) => void;
-	onEdit?: (id: string) => void;
+	onEdit?: (id: string, updates: Partial<Destination>) => void;
 }
 
 export default function Sidebar({
@@ -18,7 +18,7 @@ export default function Sidebar({
 }: SidebarProps) {
 	return (
 		<div
-			className={`fixed top-0 left-0 h-full w-72 bg-background shadow-lg z-40 transform transition-transform duration-300 rounded-r-2xl
+			className={`fixed top-0 left-0 h-full w-sm bg-background shadow-lg z-40 transform transition-transform duration-300 rounded-r-2xl
   ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
 		>
 			{/* Header */}
@@ -32,7 +32,7 @@ export default function Sidebar({
 				</button>
 			</div>
 
-			{/* Sidebar Content (empty for now) */}
+			{/* Sidebar Content */}
 			<div className="p-4">
 				{destinations.map((d) => (
 					<DestinationCard

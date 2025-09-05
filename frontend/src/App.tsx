@@ -5,20 +5,32 @@ import Signup from "./app/(auth)/signup/page";
 import Sidebar from "./components/sidebar/Sidebar";
 import SidebarToggle from "./components/sidebar/SidebarToggle";
 import type { Destination } from "@/types/destination";
+import { useUpdateDestination } from "./hooks/useUpdateDestination";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 function App() {
 	const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
 	const [showSignup, setShowSignup] = useState(false);
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-	const [destinations, setDestinations] = useState<Destination[]>([]);
-	const handleDelete = (id: string) => {
-		setDestinations(destinations.filter((d) => d.id !== id));
+
+	const { data: destinations = [] } = useQuery<Destination[]>({
+		queryKey: ["destinations"],
+		queryFn: async () => {
+			const res = await axios.get("http://localhost:5000/api/destinations", {
+				headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+			});
+			return res.data.destinations as Destination[];
+		},
+	});
+	
+	const handleDelete = () => {
 		// optionally call backend to delete
 	};
 
-	const handleEdit = (id: string) => {
-		setDestinations(destinations.filter((d) => d.id !== id));
-		// open a modal or inline edit
+	const { mutate: updateDestination } = useUpdateDestination();
+	const handleEdit = (id: string, updates: Partial<Destination>) => {
+		updateDestination({ id, updates });
 	};
 
 	if (!isAuth) {
@@ -54,7 +66,7 @@ function App() {
 
 			{/* Map Area */}
 			<div className="flex-1 relative z-0 overflow-hidden">
-				<Map destinations={destinations} setDestinations={setDestinations} />
+				<Map destinations={destinations} />
 			</div>
 
 			{/* Toggle button (floating) */}

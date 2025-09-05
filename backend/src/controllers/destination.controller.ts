@@ -53,6 +53,7 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 				tags: destination.tags,
 				visited: destination.visited,
 				createdAt: destination.createdAt,
+				editedAt: destination.editedAt,
 			},
 		});
 	} catch (err: any) {
@@ -84,6 +85,7 @@ export const getDestinations = async (req: AuthRequest, res: Response) => {
 				tags: d.tags,
 				visited: d.visited,
 				createdAt: d.createdAt,
+				editedAt: d.editedAt,
 			})),
 		});
 	} catch (err: any) {
@@ -135,6 +137,7 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 		if (notes !== undefined) destination.notes = notes;
 		if (tags !== undefined) destination.tags = tags;
 		if (visited !== undefined) destination.visited = visited;
+		destination.editedAt = new Date();
 
 		await destination.save();
 
@@ -148,6 +151,7 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 				tags: destination.tags,
 				visited: destination.visited,
 				createdAt: destination.createdAt,
+				editedAt: destination.editedAt,
 			},
 		});
 	} catch (err: any) {

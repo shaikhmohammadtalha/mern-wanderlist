@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	MapContainer,
 	TileLayer,
@@ -10,6 +10,7 @@ import {
 import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
+import { useCreateDestination } from "@/hooks/useDestinations";
 
 // Fix default Leaflet icon (otherwise broken in React)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -22,7 +23,6 @@ L.Icon.Default.mergeOptions({
 
 interface MapProps {
 	destinations: Destination[];
-	setDestinations: React.Dispatch<React.SetStateAction<Destination[]>>;
 }
 
 interface Destination {
@@ -33,33 +33,32 @@ interface Destination {
 	tags?: string[];
 	visited: boolean;
 	createdAt: string;
+	editedAt?: string;
 }
 
-export default function Map({ destinations, setDestinations }: MapProps) {
+export default function Map({ destinations }: MapProps) {
 	const [selectedPos, setSelectedPos] = useState<{
 		lat: number;
 		lng: number;
 	} | null>(null);
 	const [newName, setNewName] = useState("");
 
+	const { mutate: createDestination } = useCreateDestination();
+
 	// Fetch destinations on mount
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const res = await fetch("http://localhost:5000/api/destinations", {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-				});
-				const data = await res.json();
-				setDestinations(data.destinations);
-				console.log("Fetched destinations:", data.destinations);
-			} catch (err) {
-				console.error("Error fetching destinations", err);
+	const handleSave = () => {
+		if (!selectedPos || !newName) return;
+
+		createDestination(
+			{ name: newName, coordinates: selectedPos },
+			{
+				onSuccess: () => {
+					setSelectedPos(null);
+					setNewName("");
+				},
 			}
-		};
-		fetchData();
-	}, []);
+		);
+	};
 
 	// Handle map clicks to drop new pin
 	function LocationMarker() {
@@ -70,36 +69,6 @@ export default function Map({ destinations, setDestinations }: MapProps) {
 		});
 		return null;
 	}
-
-	// Save new destination
-	const handleSave = async () => {
-		if (!selectedPos || !newName) return;
-
-		try {
-			const res = await fetch("http://localhost:5000/api/destinations", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
-				},
-				body: JSON.stringify({
-					name: newName,
-					coordinates: selectedPos,
-				}),
-			});
-
-			const data = await res.json();
-			if (res.ok) {
-				setDestinations([...destinations, data.destination]);
-				setSelectedPos(null);
-				setNewName("");
-			} else {
-				console.error("Failed to save destination:", data.message);
-			}
-		} catch (err) {
-			console.error("Error saving destination", err);
-		}
-	};
 
 	return (
 		<div className="h-screen w-full">

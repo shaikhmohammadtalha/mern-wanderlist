@@ -7,7 +7,8 @@ export interface IDestination extends Document {
 	notes?: string;
 	tags?: string[];
 	visited: boolean;
-	createdAt?: Date;
+	createdAt: Date;
+	editedAt?: Date;
 }
 
 const DestinationSchema = new Schema<IDestination>({
@@ -21,6 +22,7 @@ const DestinationSchema = new Schema<IDestination>({
 	tags: [{ type: String }],
 	visited: { type: Boolean, default: false },
 	createdAt: { type: Date, default: Date.now },
+	editedAt: { type: Date },
 });
 
 export default mongoose.model<IDestination>("Destination", DestinationSchema);

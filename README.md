@@ -102,11 +102,13 @@ A full-stack MERN application where users can plan, organize, and visualize thei
   - Implemented “drop pin” → save to DB
   - Fetched backend destinations and displayed markers  
 
-- 🔄 **Day 4 – Sidebar + Cards (Next Up)**
-  - Sidebar layout created (empty cards placeholder)
-  - Destination cards component not fully implemented
-  - Click card to zoom, delete/edit notes, and shadcn/ui styling still pending
-
+- 🔄 **Day 4 – Sidebar + Cards (In Progress)**  
+  - Sidebar layout created  
+  - Destination card component added (notes, tags, relative/absolute date)  
+  - Basic integration with map (zoom on card click) not implemented
+  - Pending:  
+    - Delete buttons on each card not fully implemented
+    
 ---
 
 ## 🧑‍💻 Future Improvements  
