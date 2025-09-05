@@ -1,69 +1,91 @@
-# React + TypeScript + Vite
+# 🌍 WanderList  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack MERN application where users can plan, organize, and visualize their dream travel destinations on an interactive world map.  
 
-Currently, two official plugins are available:
+<p align="center">
+  <img src="https://img.shields.io/badge/MERN-Stack-blue?logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-Ready-blue?logo=typescript" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features  
+- **User Authentication** – Secure signup/login with JWT.  
+- **Interactive Map (Leaflet + OpenStreetMap)** – Drop pins, save destinations, and view them instantly.  
+- **Destination Management (CRUD)** – Add, edit, delete, and categorize destinations.  
+- **Categories & Tags** – Organize trips as Adventure, Food, Relaxation, etc.  
+- **Visited vs Planned** – Track places you’ve visited and those still on your bucket list.  
+- **Search Destinations** – Find and zoom into locations via geocoding.  
+- **Statistics Dashboard** – See counts of visited vs planned destinations.  
+- **Responsive UI** – Built with TailwindCSS + shadcn/ui for modern design.  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Tech Stack  
+**Frontend**: React + TypeScript + Vite + TailwindCSS + shadcn/ui + React Query  
+**Backend**: Node.js + Express + TypeScript  
+**Database**: MongoDB Atlas  
+**Maps**: Leaflet + OpenStreetMap + Nominatim API (for geocoding)  
+**Deployment**: Vercel (frontend), Render (backend)  
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🚀 Live Demo  
+🔗 [Live App on Vercel](#)  
+🔗 [Backend API on Render](#)  
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📸 Screenshots  
+1. **Dashboard View**  
+   _[Insert screenshot]_  
+2. **Map with Pins**  
+   _[Insert screenshot]_  
+3. **Destination Card Example**  
+   _[Insert screenshot]_  
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 📦 Installation (Local Setup)  
+
+1. Clone repo:  
+   ```bash
+   git clone https://github.com/shaikhmohammadtalha/mern-wanderlist.git
+   cd wanderlist
+   ```
+
+2. Install dependencies:  
+   ```bash
+   npm install
+   ```
+
+3. Set environment variables (`.env`):  
+   ```env
+   MONGO_URI=your_mongodb_uri
+   JWT_SECRET=your_secret
+   ```
+
+4. Run backend:  
+   ```bash
+   cd backend && npm run dev
+   ```
+
+5. Run frontend:  
+   ```bash
+   cd frontend && npm run dev
+   ```
+
+---
+
+## 🧑‍💻 Future Improvements  
+- Social sharing (share your WanderList with friends).  
+- Weather integration for destinations.  
+- Trip itinerary planner with connected routes.  
+- Offline map support.  
+
+---
+
+## 📄 License  
+MIT License  

@@ -2,6 +2,13 @@
 
 A full-stack MERN application where users can plan, organize, and visualize their dream travel destinations on an interactive world map.  
 
+<p align="center">
+  <img src="https://img.shields.io/badge/MERN-Stack-blue?logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-Ready-blue?logo=typescript" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+</p>
+
 ---
 
 ## ✨ Features  
@@ -45,7 +52,7 @@ A full-stack MERN application where users can plan, organize, and visualize thei
 
 1. Clone repo:  
    ```bash
-   git clone https://github.com/yourusername/wanderlist.git
+   git clone https://github.com/shaikhmohammadtalha/mern-wanderlist.git
    cd wanderlist
    ```
 
@@ -69,6 +76,36 @@ A full-stack MERN application where users can plan, organize, and visualize thei
    ```bash
    cd frontend && npm run dev
    ```
+
+---
+
+## 📅 Progress Log  
+
+- ✅ **Day 1 – Project Setup**  
+  - Initialized MERN project (Express + MongoDB + React + Vite + TypeScript)  
+  - Added Tailwind CSS v4 + shadcn/ui for styling  
+  - Setup JWT authentication (signup/login, protected routes)  
+  - Deployed boilerplate to GitHub  
+
+- ✅ **Day 2 – Backend Models & CRUD**  
+  - Created User & Destination models (MongoDB + Mongoose)  
+  - Implemented REST APIs for destinations:  
+    - `POST /destinations` → add  
+    - `GET /destinations` → list by user  
+    - `PATCH /destinations/:id` → update visited/notes/tags  
+    - `DELETE /destinations/:id` → delete  
+  - Tested APIs with Postman  
+
+- ✅ **Day 3 – Map Integration**  
+  - Installed Leaflet + React Leaflet
+  - Added basic map component with OSM tiles
+  - Implemented “drop pin” → save to DB
+  - Fetched backend destinations and displayed markers  
+
+- 🔄 **Day 4 – Sidebar + Cards (Next Up)**
+  - Sidebar layout created (empty cards placeholder)
+  - Destination cards component not fully implemented
+  - Click card to zoom, delete/edit notes, and shadcn/ui styling still pending
 
 ---
 

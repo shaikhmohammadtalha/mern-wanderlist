@@ -2,10 +2,18 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import { loginSchema, signupSchema } from "../utils/zod.schema";
 
 export const signup = async (req: Request, res: Response) => {
 	try {
-		const { firstName, lastName, email, password } = req.body;
+		const parseResult = signupSchema.safeParse(req.body);
+		if (!parseResult.success) {
+			return res.status(400).json({
+				message: "Invalid input",
+				errors: parseResult.error.issues,
+			});
+		}
+		const { firstName, lastName, email, password } = parseResult.data;
 
 		// Check if user already exists
 		const existingUser = await User.findOne({ email });
@@ -39,12 +47,18 @@ export const signup = async (req: Request, res: Response) => {
 		console.error("Signup error:", err.message || err);
 		res.status(500).json({ message: "Signup failed", error: err.message });
 	}
-
 };
 
 export const login = async (req: Request, res: Response) => {
 	try {
-		const { email, password } = req.body;
+		const parseResult = loginSchema.safeParse(req.body);
+		if (!parseResult.success) {
+			return res.status(400).json({
+				message: "Invalid input",
+				errors: parseResult.error.issues,
+			});
+		}
+		const { email, password } = parseResult.data;
 
 		// Find User
 		const user = await User.findOne({ email });

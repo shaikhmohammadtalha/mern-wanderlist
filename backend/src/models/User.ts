@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUSer extends Document {
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordHash: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	passwordHash: string;
 }
 
 const UserSchema = new Schema<IUSer>({

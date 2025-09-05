@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/", authMiddleware, (req: AuthRequest, res) => {
 	res.json({
-		message: "🔒 Protected route accessed successfully!",
+		message: "Protected route accessed successfully!",
 		user: req.user,
 	});
 });

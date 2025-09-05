@@ -1,10 +1,22 @@
 import { Request, Response } from "express";
 import Destination from "../models/Destination";
 import { AuthRequest } from "../middleware/auth";
+import {
+	destinationSchema,
+	objectIdSchema,
+	updateDestinationSchema,
+} from "../utils/zod.schema";
 
 export const addDestination = async (req: AuthRequest, res: Response) => {
 	try {
-		const { name, coordinates, notes, tags } = req.body;
+		const parseResult = destinationSchema.safeParse(req.body);
+		if (!parseResult.success) {
+			return res.status(400).json({
+				message: "Invalid input",
+				errors: parseResult.error.issues,
+			});
+		}
+		const { name, coordinates, notes, tags, visited } = parseResult.data;
 
 		if (!req.user?.id) {
 			return res.status(401).json({ message: "Unauthorized" });
@@ -53,12 +65,16 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 
 export const getDestinations = async (req: AuthRequest, res: Response) => {
 	try {
+		// Check auth
 		if (!req.user?.id) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
 		// Find all destinations for the logged-in user
 		const destinations = await Destination.find({ userId: req.user.id });
+
+		console.log("Destinations found for user", req.user.id, destinations);
+
 		res.status(200).json({
 			destinations: destinations.map((d) => ({
 				id: d._id,
@@ -81,29 +97,48 @@ export const getDestinations = async (req: AuthRequest, res: Response) => {
 
 export const updateDestination = async (req: AuthRequest, res: Response) => {
 	try {
+		// Validate ID
+		const idValidation = objectIdSchema.safeParse(req.params.id);
+		if (!idValidation.success) {
+			return res.status(400).json({
+				message: "Invalid destination ID",
+				errors: idValidation.error.issues,
+			});
+		}
+		const destinationId = idValidation.data;
+
+		// Check auth
 		if (!req.user?.id) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
-		const { id } = req.params;
-		const { notes, tags, visited } = req.body;
+		// Validate body
+		const parseResult = updateDestinationSchema.safeParse(req.body);
+		if (!parseResult.success) {
+			return res.status(400).json({
+				message: "Invalid input",
+				errors: parseResult.error.issues,
+			});
+		}
+		const { notes, tags, visited } = parseResult.data;
 
-		// Find destination owned by the logged-in user
+		// Find destination owned by user
 		const destination = await Destination.findOne({
-			_id: id,
+			_id: destinationId,
 			userId: req.user.id,
 		});
 		if (!destination) {
 			return res.status(404).json({ message: "Destination not found" });
 		}
 
-		// Update only provided fields
+		// Apply updates only if provided
 		if (notes !== undefined) destination.notes = notes;
 		if (tags !== undefined) destination.tags = tags;
 		if (visited !== undefined) destination.visited = visited;
 
 		await destination.save();
 
+		// Send response
 		res.status(200).json({
 			destination: {
 				id: destination._id,
@@ -126,20 +161,26 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 
 export const deleteDestination = async (req: AuthRequest, res: Response) => {
 	try {
+		// Validate ID
+		const idValidation = objectIdSchema.safeParse(req.params.id);
+		if (!idValidation.success) {
+			return res.status(400).json({
+				message: "Invalid destination ID",
+				errors: idValidation.error.issues,
+			});
+		}
+		const destinationId = idValidation.data;
+		// Check auth
 		if (!req.user?.id) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
-
-		const { id } = req.params;
-
 		const destination = await Destination.findOneAndDelete({
-			_id: id,
+			_id: destinationId,
 			userId: req.user.id,
 		});
 		if (!destination) {
 			return res.status(404).json({ message: "Destination not found" });
 		}
-
 		res.status(200).json({ message: "Destination deleted successfully" });
 	} catch (err: any) {
 		console.error("Deleting Destination error:", err.message || err);

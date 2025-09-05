@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IDestination extends Document {
-	userId: mongoose.Types.ObjectId; // reference to User
+	userId: mongoose.Types.ObjectId;
 	name: string;
 	coordinates: { lat: number; lng: number };
 	notes?: string;
