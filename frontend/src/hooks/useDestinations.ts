@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import type { Destination } from "@/types/destination";
+
+type NewDestination = Omit<Destination, "id" | "createdAt" | "editedAt">;
 
 export function useCreateDestination() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (newDest: {
-			name: string;
-			coordinates: { lat: number; lng: number };
-		}) => {
+		mutationFn: async (newDest: NewDestination) => {
 			const res = await axios.post(
 				"http://localhost:5000/api/destinations",
 				newDest,

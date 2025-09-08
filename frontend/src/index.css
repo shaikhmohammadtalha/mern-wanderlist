@@ -4,6 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Style the Leaflet popup close button */
+.leaflet-popup-close-button {
+  font-size: 1.25rem;
+  /* make the "×" larger */
+  padding: 8px 8px;
+  /* add breathing room */
+  color: #333;
+  /* nicer color */
+}
+
+.leaflet-popup-close-button {
+  top: 6px !important;
+  right: 6px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #000;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -15,6 +34,7 @@ body {
 }
 
 :root {
+  
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;

@@ -101,14 +101,28 @@ A full-stack MERN application where users can plan, organize, and visualize thei
   - Added basic map component with OSM tiles
   - Implemented “drop pin” → save to DB
   - Fetched backend destinations and displayed markers  
-
-- 🔄 **Day 4 – Sidebar + Cards (In Progress)**  
-  - Sidebar layout created  
-  - Destination card component added (notes, tags, relative/absolute date)  
-  - Basic integration with map (zoom on card click) not implemented
-  - Pending:  
-    - Delete buttons on each card not fully implemented
     
+- ✅ **Day 4 – Sidebar + Cards**  
+  - Sidebar with list of destination cards using shadcn/ui components  
+  - Destination card component added (name, notes, tags, visited)
+  - Clicking the location button in a card zooms to the corresponding map pin  
+  - Added ability to delete/edit notes directly from the card  
+
+- 🔄 **Day 5 – Categories + Search**  
+  - Tags/categories added to destinations (Adventure, Food, Relaxation)  
+  - Color-coded map pins according to category  
+  - Search bar implemented using Nominatim API  
+  - Pending:  
+    - Click search result → zoom map to location  
+    - Allow saving searched location as a new destination  
+
+- 🔄 **Day 6 – Enhancements**  
+  - Upcoming:  
+    - Toggle destinations between “Visited” / “Planned”  
+    - Basic stats page (X visited, Y planned)  
+    - Optionally connect destinations with polylines for itinerary view  
+    - Polish UI with modals/dialogs for adding/editing destinations
+
 ---
 
 ## 🧑‍💻 Future Improvements  

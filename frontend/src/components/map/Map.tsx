@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	MapContainer,
 	TileLayer,
 	Marker,
-	Popup,
 	useMapEvents,
 	ZoomControl,
+	useMap,
 } from "react-leaflet";
 import L from "leaflet";
-
 import "leaflet/dist/leaflet.css";
 import { useCreateDestination } from "@/hooks/useDestinations";
+import AddDestinationPopup from "./AddDestinationPopup";
+import DestinationMarker from "./DestinationMarker";
+import type { Destination } from "@/types/destination";
 
 // Fix default Leaflet icon (otherwise broken in React)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -23,42 +25,34 @@ L.Icon.Default.mergeOptions({
 
 interface MapProps {
 	destinations: Destination[];
+	activeDestinationId?: string | null;
+	onDelete?: (id: string) => void;
+	onFocus?: (id: string) => void;
 }
 
-interface Destination {
-	id: string;
-	name: string;
-	coordinates: { lat: number; lng: number };
-	notes?: string;
-	tags?: string[];
-	visited: boolean;
-	createdAt: string;
-	editedAt?: string;
+function FlyToDestination({ destination }: { destination?: Destination }) {
+	const map = useMap();
+	useEffect(() => {
+		if (destination) {
+			map.flyTo([destination.coordinates.lat, destination.coordinates.lng], 13);
+		}
+	}, [destination, map]);
+	return null;
 }
 
-export default function Map({ destinations }: MapProps) {
+export default function Map({
+	destinations,
+	activeDestinationId,
+	onDelete,
+	onFocus,
+}: MapProps) {
 	const [selectedPos, setSelectedPos] = useState<{
 		lat: number;
 		lng: number;
 	} | null>(null);
-	const [newName, setNewName] = useState("");
+	const [open, setOpen] = useState(false);
 
 	const { mutate: createDestination } = useCreateDestination();
-
-	// Fetch destinations on mount
-	const handleSave = () => {
-		if (!selectedPos || !newName) return;
-
-		createDestination(
-			{ name: newName, coordinates: selectedPos },
-			{
-				onSuccess: () => {
-					setSelectedPos(null);
-					setNewName("");
-				},
-			}
-		);
-	};
 
 	// Handle map clicks to drop new pin
 	function LocationMarker() {
@@ -79,41 +73,43 @@ export default function Map({ destinations }: MapProps) {
 				zoomControl={false}
 				style={{ height: "100%", width: "100%" }}
 			>
+				<FlyToDestination
+					destination={destinations.find((d) => d.id === activeDestinationId)}
+				/>
 				<TileLayer
 					attribution='&copy; <a href="http://osm.org/copyright">OSM</a>'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
 				<ZoomControl position="bottomright" /> {/* or "topright" */}
 				{/* Existing destinations */}
-				{destinations.map((d) => (
-					<Marker key={d.id} position={[d.coordinates.lat, d.coordinates.lng]}>
-						<Popup>
-							<strong>{d.name}</strong>
-							<br />
-							{d.notes || "No notes"}
-							<br />
-							<em>{d.visited ? "Visited" : "Planned"}</em>
-						</Popup>
-					</Marker>
+				{destinations.map((dest) => (
+					<DestinationMarker
+						key={dest.id}
+						destination={dest}
+						onDelete={onDelete}
+						onFocus={onFocus}
+					/>
 				))}
 				{/* New marker preview */}
 				{selectedPos && (
-					<Marker position={[selectedPos.lat, selectedPos.lng]}>
-						<Popup>
-							<input
-								type="text"
-								placeholder="Destination name"
-								value={newName}
-								onChange={(e) => setNewName(e.target.value)}
-								className="border p-1 rounded w-full mb-2"
-							/>
-							<button
-								onClick={handleSave}
-								className="bg-blue-500 text-white px-2 py-1 rounded"
-							>
-								Save
-							</button>
-						</Popup>
+					<Marker
+						position={[selectedPos.lat, selectedPos.lng]}
+						eventHandlers={{
+							click: () => setOpen(true),
+						}}
+					>
+						<AddDestinationPopup
+							open={open}
+							onOpenChange={setOpen}
+							onSave={(data) =>
+								createDestination(
+									{ coordinates: selectedPos, ...data },
+									{
+										onSuccess: () => setSelectedPos(null),
+									}
+								)
+							}
+						/>
 					</Marker>
 				)}
 				<LocationMarker />

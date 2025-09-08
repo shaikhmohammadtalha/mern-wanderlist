@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { CATEGORIES, Category } from "../constants/categories";
 
 export interface IDestination extends Document {
 	userId: mongoose.Types.ObjectId;
@@ -6,6 +7,7 @@ export interface IDestination extends Document {
 	coordinates: { lat: number; lng: number };
 	notes?: string;
 	tags?: string[];
+	category: Category;
 	visited: boolean;
 	createdAt: Date;
 	editedAt?: Date;
@@ -20,6 +22,12 @@ const DestinationSchema = new Schema<IDestination>({
 	},
 	notes: { type: String },
 	tags: [{ type: String }],
+	category: {
+		type: String,
+		enum: CATEGORIES,
+		required: true,
+		default: "None",
+	},
 	visited: { type: Boolean, default: false },
 	createdAt: { type: Date, default: Date.now },
 	editedAt: { type: Date },

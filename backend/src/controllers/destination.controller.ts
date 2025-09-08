@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import Destination from "../models/Destination";
 import { AuthRequest } from "../middleware/auth";
 import {
@@ -16,7 +16,8 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 				errors: parseResult.error.issues,
 			});
 		}
-		const { name, coordinates, notes, tags, visited } = parseResult.data;
+		const { name, coordinates, notes, tags, category, visited } =
+			parseResult.data;
 
 		if (!req.user?.id) {
 			return res.status(401).json({ message: "Unauthorized" });
@@ -40,6 +41,8 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 			coordinates,
 			notes,
 			tags,
+			category: category ?? "None",
+			visited: visited ?? false,
 		});
 
 		await destination.save();
@@ -51,6 +54,7 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 				coordinates: destination.coordinates,
 				notes: destination.notes,
 				tags: destination.tags,
+				category: destination.category ?? "None",
 				visited: destination.visited,
 				createdAt: destination.createdAt,
 				editedAt: destination.editedAt,
@@ -83,6 +87,7 @@ export const getDestinations = async (req: AuthRequest, res: Response) => {
 				coordinates: d.coordinates,
 				notes: d.notes,
 				tags: d.tags,
+				category: d.category,
 				visited: d.visited,
 				createdAt: d.createdAt,
 				editedAt: d.editedAt,
@@ -122,7 +127,7 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 				errors: parseResult.error.issues,
 			});
 		}
-		const { notes, tags, visited } = parseResult.data;
+		const { notes, tags, category, visited } = parseResult.data;
 
 		// Find destination owned by user
 		const destination = await Destination.findOne({
@@ -136,6 +141,9 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 		// Apply updates only if provided
 		if (notes !== undefined) destination.notes = notes;
 		if (tags !== undefined) destination.tags = tags;
+		if (category !== undefined) {
+			destination.category = category ?? "None";
+		}
 		if (visited !== undefined) destination.visited = visited;
 		destination.editedAt = new Date();
 
@@ -149,6 +157,7 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 				coordinates: destination.coordinates,
 				notes: destination.notes,
 				tags: destination.tags,
+				category: destination.category,
 				visited: destination.visited,
 				createdAt: destination.createdAt,
 				editedAt: destination.editedAt,

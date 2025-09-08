@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CATEGORIES } from "../constants/categories";
 
 export const signupSchema = z.object({
 	firstName: z.string().min(1, "First name is required"),
@@ -20,6 +21,7 @@ export const destinationSchema = z.object({
 	}),
 	notes: z.string().optional(),
 	tags: z.array(z.string()).optional(),
+	category: z.enum(CATEGORIES).nullable().optional().default("None"),
 	visited: z.boolean().optional(),
 });
 

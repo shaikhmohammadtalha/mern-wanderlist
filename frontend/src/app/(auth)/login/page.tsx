@@ -22,6 +22,7 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
 		},
 		onSuccess: (data) => {
 			localStorage.setItem("token", data.token);
+    		localStorage.setItem("username", data.user.firstName);
 			onSuccess();
 		},
 	});
