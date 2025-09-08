@@ -28,6 +28,21 @@ interface MapProps {
 	activeDestinationId?: string | null;
 	onDelete?: (id: string) => void;
 	onFocus?: (id: string) => void;
+	searchLocation?: { lat: number; lng: number } | null;
+}
+
+function FlyToSearch({
+	location,
+}: {
+	location?: { lat: number; lng: number } | null;
+}) {
+	const map = useMap();
+	useEffect(() => {
+		if (location) {
+			map.flyTo([location.lat, location.lng], 13);
+		}
+	}, [location, map]);
+	return null;
 }
 
 function FlyToDestination({ destination }: { destination?: Destination }) {
@@ -45,6 +60,7 @@ export default function Map({
 	activeDestinationId,
 	onDelete,
 	onFocus,
+	searchLocation,
 }: MapProps) {
 	const [selectedPos, setSelectedPos] = useState<{
 		lat: number;
@@ -76,20 +92,33 @@ export default function Map({
 				<FlyToDestination
 					destination={destinations.find((d) => d.id === activeDestinationId)}
 				/>
-				<TileLayer
-					attribution='&copy; <a href="http://osm.org/copyright">OSM</a>'
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-				/>
-				<ZoomControl position="bottomright" /> {/* or "topright" */}
-				{/* Existing destinations */}
-				{destinations.map((dest) => (
-					<DestinationMarker
-						key={dest.id}
-						destination={dest}
-						onDelete={onDelete}
-						onFocus={onFocus}
-					/>
-				))}
+				<FlyToSearch location={searchLocation} />
+				{searchLocation && (
+					<Marker
+						position={[searchLocation.lat, searchLocation.lng]}
+						eventHandlers={{
+							click: () => setOpen(true),
+						}}
+					>
+						<AddDestinationPopup
+							open={open}
+							onOpenChange={setOpen}
+							onSave={(data) =>
+								createDestination(
+									{ coordinates: searchLocation, ...data },
+									{
+										onSuccess: () => {
+											// close popup and clear search marker
+											setOpen(false);
+											// optionally reset searchLocation
+											// setSearchLocation(null);
+										},
+									}
+								)
+							}
+						/>
+					</Marker>
+				)}
 				{/* New marker preview */}
 				{selectedPos && (
 					<Marker
@@ -112,6 +141,20 @@ export default function Map({
 						/>
 					</Marker>
 				)}
+				<TileLayer
+					attribution='&copy; <a href="http://osm.org/copyright">OSM</a>'
+					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+				/>
+				<ZoomControl position="bottomright" /> {/* or "topright" */}
+				{/* Existing destinations */}
+				{destinations.map((dest) => (
+					<DestinationMarker
+						key={dest.id}
+						destination={dest}
+						onDelete={onDelete}
+						onFocus={onFocus}
+					/>
+				))}
 				<LocationMarker />
 			</MapContainer>
 		</div>

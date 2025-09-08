@@ -55,6 +55,12 @@ function App() {
 		error,
 	} = useSearchDestinations(submittedQuery);
 
+	const [searchLocation, setSearchLocation] = useState<{
+		lat: number;
+		lng: number;
+	} | null>(null);
+
+
 	if (!isAuth) {
 		return (
 			<div className="h-screen flex flex-col justify-center items-center gap-4">
@@ -89,11 +95,14 @@ function App() {
 			<SidebarInset>
 				{/* App Navbar */}
 				<AppNavbar
-					onSearch={(query) => setSubmittedQuery(query)} // manual search
-					onDebounce={(query) => setDebouncedQuery(query)} // auto typing
+					onSearch={(query) => setSubmittedQuery(query)}
+					onDebounce={(query) => setDebouncedQuery(query)}
 					results={suggestionResults}
 					loading={suggestionLoading}
 					error={suggestionError}
+					onResultClick={(lat, lon) =>
+						setSearchLocation({ lat: parseFloat(lat), lng: parseFloat(lon) })
+					}
 				/>
 
 				{/* Search results preview */}
@@ -119,6 +128,12 @@ function App() {
 									<li
 										key={idx}
 										className="px-3 py-2 text-sm hover:bg-accent/50 cursor-pointer transition-colors"
+										onClick={() =>
+											setSearchLocation({
+												lat: parseFloat(r.lat),
+												lng: parseFloat(r.lon),
+											})
+										}
 									>
 										{r.display_name}
 									</li>
@@ -134,6 +149,7 @@ function App() {
 						activeDestinationId={activeDestinationId}
 						onDelete={handleDelete}
 						onFocus={(id) => setActiveDestinationId(id)}
+						searchLocation={searchLocation}
 					/>
 				</main>
 			</SidebarInset>

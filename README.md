@@ -108,13 +108,12 @@ A full-stack MERN application where users can plan, organize, and visualize thei
   - Clicking the location button in a card zooms to the corresponding map pin  
   - Added ability to delete/edit notes directly from the card  
 
-- 🔄 **Day 5 – Categories + Search**  
+- ✅ **Day 5 – Categories + Search**  
   - Tags/categories added to destinations (Adventure, Food, Relaxation)  
   - Color-coded map pins according to category  
   - Search bar implemented using Nominatim API  
-  - Pending:  
-    - Click search result → zoom map to location  
-    - Allow saving searched location as a new destination  
+  - Click search result → zoom map to location  
+  - Allow saving searched location as a new destination
 
 - 🔄 **Day 6 – Enhancements**  
   - Upcoming:  

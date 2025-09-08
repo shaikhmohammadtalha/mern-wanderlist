@@ -215,7 +215,12 @@ export default function DestinationCard({
 						)}
 
 						{onFocus && (
-							<Button variant="secondary" size="sm">
+							<Button
+								variant="secondary"
+								size="sm"
+								className="mt-1 mb-1"
+								onClick={() => onFocus(id)}
+							>
 								<MapPin className="w-4 h-4 mr-1" /> Location
 							</Button>
 						)}
