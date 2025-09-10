@@ -18,6 +18,7 @@ export default function DestinationMarker({
 		<Marker
 			position={[destination.coordinates.lat, destination.coordinates.lng]}
 			icon={categoryIcons[destination.category]}
+			opacity={destination.visited ? 0.5 : 1.0}
 		>
 			<Popup>
 				<div className="space-y-1 text-sm">

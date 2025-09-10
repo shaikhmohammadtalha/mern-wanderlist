@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -10,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import {
 	Select,
 	SelectContent,
@@ -21,23 +20,48 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "../ui/badge";
 import type { Category } from "@/types/categories";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { useCreateDestination } from "@/hooks/useDestinations";
 
 interface AddDestinationPopupProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	mapCoordinates?: { lat: number; lng: number } | null;
+	manualMode: boolean;
+	manualLocation?: { lat: number; lng: number } | null;
+	onSetManualMode: (v: boolean) => void;
+	onSetManualLocation: (loc: { lat: number; lng: number } | null) => void;
+
+	// ✅ Make sure this exists
 	onSave: (data: {
 		name: string;
 		notes?: string;
 		tags?: string[];
 		category: Category;
 		visited: boolean;
+		coordinates: { lat: number; lng: number };
 	}) => void;
 }
+
 
 export default function AddDestinationPopup({
 	open,
 	onOpenChange,
-	onSave,
+	mapCoordinates,
+	manualMode,
+	manualLocation,
+	onSetManualMode,
+	onSetManualLocation,
 }: AddDestinationPopupProps) {
 	const [name, setName] = useState("");
 	const [notes, setNotes] = useState("");
@@ -45,23 +69,60 @@ export default function AddDestinationPopup({
 	const [tagInput, setTagInput] = useState("");
 	const [category, setCategory] = useState<Category>("None");
 	const [visited, setVisited] = useState(false);
+	const [lat, setLat] = useState<number | "">("");
+	const [lng, setLng] = useState<number | "">("");
+	const [editingCoords, setEditingCoords] = useState(false);
+
+	const createDestination = useCreateDestination();
+
+	// Sync coordinates on prop change or mode change
+	useEffect(() => {
+		if (manualMode) {
+			setLat(manualLocation?.lat ?? "");
+			setLng(manualLocation?.lng ?? "");
+		} else {
+			setLat(mapCoordinates?.lat ?? manualLocation?.lat ?? "");
+			setLng(mapCoordinates?.lng ?? manualLocation?.lng ?? "");
+		}
+	}, [manualMode, mapCoordinates, manualLocation]);
 
 	const handleSave = () => {
 		if (!name.trim()) return;
-		onSave({
-			name,
-			notes,
-			tags,
-			category,
-			visited,
-		});
-		// reset
-		setName("");
-		setNotes("");
-		setTags([]);
-		setTagInput("");
-		setVisited(false);
-		onOpenChange(false);
+
+		let finalLat: number | null = lat !== "" ? Number(lat) : null;
+		let finalLng: number | null = lng !== "" ? Number(lng) : null;
+
+		if (finalLat === null || finalLng === null) {
+			if (manualMode && manualLocation) {
+				finalLat = manualLocation.lat;
+				finalLng = manualLocation.lng;
+			} else if (mapCoordinates) {
+				finalLat = mapCoordinates.lat;
+				finalLng = mapCoordinates.lng;
+			} else return; // no coordinates
+		}
+
+		const coordinates = { lat: finalLat, lng: finalLng };
+
+		if (manualMode) onSetManualLocation(coordinates);
+
+		createDestination.mutate(
+			{ name, notes, tags, category, visited, coordinates },
+			{
+				onSuccess: () => {
+					// Reset all UI
+					setName("");
+					setNotes("");
+					setTags([]);
+					setTagInput("");
+					setVisited(false);
+					setLat("");
+					setLng("");
+					setEditingCoords(false);
+					onOpenChange(false);
+				},
+			}
+		);
 	};
 
 	return (
@@ -69,12 +130,10 @@ export default function AddDestinationPopup({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Add Destination</DialogTitle>
-					<DialogDescription>
-						Fill in the details for your new destination.
-					</DialogDescription>
 				</DialogHeader>
 
 				<div className="grid gap-4 py-2">
+					{/* Name */}
 					<div className="grid gap-2">
 						<Label htmlFor="dest-name">Name</Label>
 						<Input
@@ -85,6 +144,69 @@ export default function AddDestinationPopup({
 						/>
 					</div>
 
+					{/* Coordinates */}
+					<div className="grid gap-2">
+						<Label>Coordinates</Label>
+						<div className="flex gap-2">
+							<Input
+								type="number"
+								value={lat}
+								onChange={(e) =>
+									setLat(e.target.value === "" ? "" : Number(e.target.value))
+								}
+								placeholder="Latitude"
+								disabled={!manualMode && !editingCoords}
+							/>
+							<Input
+								type="number"
+								value={lng}
+								onChange={(e) =>
+									setLng(e.target.value === "" ? "" : Number(e.target.value))
+								}
+								placeholder="Longitude"
+								disabled={!manualMode && !editingCoords}
+							/>
+						</div>
+
+						{!manualMode && (
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										className="mt-1 w-fit"
+									>
+										{editingCoords ? "Lock Coordinates" : "Edit Coordinates"}
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											{editingCoords
+												? "Lock Coordinates?"
+												: "Edit Coordinates?"}
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											{editingCoords
+												? "This will prevent further manual editing of latitude and longitude."
+												: "This will allow you to manually override map/search coordinates. Are you sure?"}
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => setEditingCoords((prev) => !prev)}
+										>
+											{editingCoords ? "Lock" : "Edit"}
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						)}
+					</div>
+
+					{/* Notes */}
 					<div className="grid gap-2">
 						<Label htmlFor="dest-notes">Notes</Label>
 						<textarea
@@ -96,6 +218,7 @@ export default function AddDestinationPopup({
 						/>
 					</div>
 
+					{/* Tags */}
 					<div className="grid gap-2">
 						<Label htmlFor="dest-tags">Tags</Label>
 						<div className="flex flex-wrap gap-2 border rounded p-2">
@@ -120,7 +243,7 @@ export default function AddDestinationPopup({
 								value={tagInput}
 								onChange={(e) => setTagInput(e.target.value)}
 								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " " || e.key === ",") {
+									if (["Enter", " ", ","].includes(e.key)) {
 										e.preventDefault();
 										if (tagInput.trim()) {
 											setTags([...tags, tagInput.trim()]);
@@ -129,7 +252,7 @@ export default function AddDestinationPopup({
 									}
 								}}
 								className="min-w-[100px] flex-shrink border-none focus-visible:ring-0 shadow-none p-0 truncate"
-								placeholder="Comma-separated tags (e.g., beach, food)"
+								placeholder="Comma-separated tags"
 							/>
 							<Button
 								type="button"
@@ -147,6 +270,7 @@ export default function AddDestinationPopup({
 						</div>
 					</div>
 
+					{/* Category */}
 					<div className="grid gap-2">
 						<Label>Category</Label>
 						<Select
@@ -169,6 +293,7 @@ export default function AddDestinationPopup({
 						</Select>
 					</div>
 
+					{/* Status */}
 					<div className="grid gap-2">
 						<Label>Status</Label>
 						<Select

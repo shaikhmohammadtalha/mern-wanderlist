@@ -29,6 +29,14 @@ interface MapProps {
 	onDelete?: (id: string) => void;
 	onFocus?: (id: string) => void;
 	searchLocation?: { lat: number; lng: number } | null;
+	selectedPos: { lat: number; lng: number } | null;
+	setSelectedPos: (pos: { lat: number; lng: number } | null) => void;
+	manualMode: boolean;
+	setManualMode: (val: boolean) => void;
+	manualLocation: { lat: number; lng: number } | null;
+	setManualLocation: (pos: { lat: number; lng: number } | null) => void;
+	popupOpen: boolean;
+	setPopupOpen: (val: boolean) => void;
 }
 
 function FlyToSearch({
@@ -61,13 +69,16 @@ export default function Map({
 	onDelete,
 	onFocus,
 	searchLocation,
+	selectedPos,
+	setSelectedPos,
+	manualMode,
+	setManualMode,
+	manualLocation,
+	setManualLocation,
+	popupOpen,
+	setPopupOpen,
 }: MapProps) {
-	const [selectedPos, setSelectedPos] = useState<{
-		lat: number;
-		lng: number;
-	} | null>(null);
-	const [open, setOpen] = useState(false);
-
+	
 	const { mutate: createDestination } = useCreateDestination();
 
 	// Handle map clicks to drop new pin
@@ -75,13 +86,14 @@ export default function Map({
 		useMapEvents({
 			click(e) {
 				setSelectedPos(e.latlng);
+				setManualMode(false);
 			},
 		});
 		return null;
 	}
 
 	return (
-		<div className="h-screen w-full">
+		<div className="h-full w-full">
 			<MapContainer
 				center={[20, 0]}
 				zoom={2}
@@ -97,19 +109,24 @@ export default function Map({
 					<Marker
 						position={[searchLocation.lat, searchLocation.lng]}
 						eventHandlers={{
-							click: () => setOpen(true),
+							click: () => setPopupOpen(true),
 						}}
 					>
 						<AddDestinationPopup
-							open={open}
-							onOpenChange={setOpen}
+							open={popupOpen}
+							onOpenChange={setPopupOpen}
+							mapCoordinates={selectedPos ?? searchLocation ?? null}
+							manualMode={manualMode}
+							manualLocation={manualLocation}
+							onSetManualMode={setManualMode}
+							onSetManualLocation={setManualLocation}
 							onSave={(data) =>
 								createDestination(
-									{ coordinates: searchLocation, ...data },
+									{ ...data },
 									{
 										onSuccess: () => {
 											// close popup and clear search marker
-											setOpen(false);
+											setPopupOpen(false);
 											// optionally reset searchLocation
 											// setSearchLocation(null);
 										},
@@ -124,15 +141,20 @@ export default function Map({
 					<Marker
 						position={[selectedPos.lat, selectedPos.lng]}
 						eventHandlers={{
-							click: () => setOpen(true),
+							click: () => setPopupOpen(true),
 						}}
 					>
 						<AddDestinationPopup
-							open={open}
-							onOpenChange={setOpen}
+							open={popupOpen}
+							onOpenChange={setPopupOpen}
+							mapCoordinates={selectedPos ?? searchLocation ?? null}
+							manualMode={manualMode}
+							manualLocation={manualLocation}
+							onSetManualMode={setManualMode}
+							onSetManualLocation={setManualLocation}
 							onSave={(data) =>
 								createDestination(
-									{ coordinates: selectedPos, ...data },
+									{ ...data },
 									{
 										onSuccess: () => setSelectedPos(null),
 									}
