@@ -1,147 +1,109 @@
-# 🌍 WanderList  
+# 🌍 WanderList
 
-A full-stack MERN application where users can plan, organize, and visualize their dream travel destinations on an interactive world map.  
+A **full-stack MERN application** to plan, organize, and visualize your dream travel destinations on an interactive world map. Designed for travel enthusiasts who want to track visited places, plan future trips, and gain insights from statistics.
 
 <p align="center">
   <img src="https://img.shields.io/badge/MERN-Stack-blue?logo=mongodb&logoColor=white" />
   <img src="https://img.shields.io/badge/TypeScript-Ready-blue?logo=typescript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/ReactQuery-TanStack-FF6347?logo=reactquery&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-green" />
 </p>
 
 ---
 
-## ✨ Features  
-- **User Authentication** – Secure signup/login with JWT.  
-- **Interactive Map (Leaflet + OpenStreetMap)** – Drop pins, save destinations, and view them instantly.  
-- **Destination Management (CRUD)** – Add, edit, delete, and categorize destinations.  
-- **Categories & Tags** – Organize trips as Adventure, Food, Relaxation, etc.  
-- **Visited vs Planned** – Track places you’ve visited and those still on your bucket list.  
-- **Search Destinations** – Find and zoom into locations via geocoding.  
-- **Statistics Dashboard** – See counts of visited vs planned destinations.  
-- **Responsive UI** – Built with TailwindCSS + shadcn/ui for modern design.  
+## ✨ Key Features
+
+* **User Authentication** – Secure signup/login with JWT.
+* **Interactive Map** – Drop pins, save destinations, and zoom using **Leaflet + OpenStreetMap**.
+* **Destination Management (CRUD)** – Add, edit, delete, categorize, and track visited vs planned destinations.
+* **All-Destinations Page** – View all destinations grouped by category, with visual distinction for visited vs planned.
+* **Search & Geocoding** – Find locations using **Nominatim API** and save them instantly.
+* **Statistics Dashboard** – Pie chart of visited vs planned destinations & bar chart of categories using TanStack charts.
+* **Responsive & Modern UI** – Built with **TailwindCSS v4** + **shadcn/ui**, modals/dialogs for smooth UX.
+* **Optimized Data Fetching** – Uses **TanStack Query (React Query)** for caching and real-time updates.
+* **Full-Stack Deployment** – Frontend on **Vercel**, backend on **Render**, MongoDB Atlas as cloud database.
+
+### ⚡ Resume-Friendly Feature Summary
+
+> Full-stack MERN project with secure JWT authentication, interactive Leaflet map, destination CRUD, stats dashboard with pie/bar charts, all-destinations page, geocoding via Nominatim API, modern responsive UI with TailwindCSS/shadcn/ui, and deployed on Vercel + Render using MongoDB Atlas.
 
 ---
 
-## 🛠️ Tech Stack  
-**Frontend**: React + TypeScript + Vite + TailwindCSS + shadcn/ui + React Query  
-**Backend**: Node.js + Express + TypeScript  
-**Database**: MongoDB Atlas  
-**Maps**: Leaflet + OpenStreetMap + Nominatim API (for geocoding)  
-**Deployment**: Vercel (frontend), Render (backend)  
+## 🛠️ Tech Stack
+
+**Frontend**: React + TypeScript + Vite + TailwindCSS + shadcn/ui + TanStack Query
+**Backend**: Node.js + Express + TypeScript
+**Database**: MongoDB Atlas (Cloud)
+**Maps & Geocoding**: Leaflet + OpenStreetMap + Nominatim API
+**Charts**: TanStack Charts (Pie & Bar)
+**Deployment**: Vercel (frontend), Render (backend)
 
 ---
 
-## 🚀 Live Demo  
-🔗 [Live App on Vercel](#)  
-🔗 [Backend API on Render](#)  
+## 🚀 Live Demo
+
+* Frontend: 🔗 [WanderList on Vercel](https://mern-wanderlist.vercel.app/)
+* Backend API: 🔗 [API on Render](https://mern-wanderlist-backend.onrender.com/)
 
 ---
 
-## 📸 Screenshots  
-1. **Dashboard View**  
-   _[Insert screenshot]_  
-2. **Map with Pins**  
-   _[Insert screenshot]_  
-3. **Destination Card Example**  
-   _[Insert screenshot]_  
+## 📸 Screenshots
+
+1. **Interactive Map with Pins**  
+   ![Map](https://github.com/shaikhmohammadtalha/mern-wanderlist/blob/main/screenshots/Map.png)
+
+2. **All Destinations Page**  
+   ![All Destinations](https://github.com/shaikhmohammadtalha/mern-wanderlist/blob/main/screenshots/AllDestinations.png)
+
+3. **Statistics Dashboard (Pie + Bar Charts)**  
+   ![Stats Dashboard](https://github.com/shaikhmohammadtalha/mern-wanderlist/blob/main/screenshots/Stats.png)
 
 ---
 
-## 📦 Installation (Local Setup)  
+## 📦 Installation (Local Setup)
 
-1. Clone repo:  
-   ```bash
-   git clone https://github.com/shaikhmohammadtalha/mern-wanderlist.git
-   cd wanderlist
-   ```
+```bash
+# Clone repo
+git clone https://github.com/shaikhmohammadtalha/mern-wanderlist.git
+cd wanderlist
 
-2. Install dependencies:  
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. Set environment variables (`.env`):  
-   ```env
-   MONGO_URI=your_mongodb_uri
-   JWT_SECRET=your_secret
-   ```
+# Set environment variables in .env
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret
 
-4. Run backend:  
-   ```bash
-   cd backend && npm run dev
-   ```
+# Run backend
+cd backend && npm run dev
 
-5. Run frontend:  
-   ```bash
-   cd frontend && npm run dev
-   ```
+# Run frontend
+cd frontend && npm run dev
+```
 
 ---
 
-## 📅 Progress Log  
+## 📅 Development Progress
 
-- ✅ **Day 1 – Project Setup**  
-  - Initialized MERN project (Express + MongoDB + React + Vite + TypeScript)  
-  - Added Tailwind CSS v4 + shadcn/ui for styling  
-  - Setup JWT authentication (signup/login, protected routes)  
-  - Deployed boilerplate to GitHub  
-
-- ✅ **Day 2 – Backend Models & CRUD**  
-  - Created User & Destination models (MongoDB + Mongoose)  
-  - Implemented REST APIs for destinations:  
-    - `POST /destinations` → add  
-    - `GET /destinations` → list by user  
-    - `PATCH /destinations/:id` → update visited/notes/tags  
-    - `DELETE /destinations/:id` → delete  
-  - Tested APIs with Postman  
-
-- ✅ **Day 3 – Map Integration**  
-  - Installed Leaflet + React Leaflet
-  - Added basic map component with OSM tiles
-  - Implemented “drop pin” → save to DB
-  - Fetched backend destinations and displayed markers  
-    
-- ✅ **Day 4 – Sidebar + Cards**  
-  - Sidebar with list of destination cards using shadcn/ui components  
-  - Destination card component added (name, notes, tags, visited)
-  - Clicking the location button in a card zooms to the corresponding map pin  
-  - Added ability to delete/edit notes directly from the card  
-
-- ✅ **Day 5 – Categories + Search**  
-  - Tags/categories added to destinations (Adventure, Food, Relaxation)  
-  - Color-coded map pins according to category  
-  - Search bar implemented using Nominatim API  
-  - Click search result → zoom map to location  
-  - Allow saving searched location as a new destination  
-
-- ✅ **Day 6 – Enhancements**  
-  - Toggle destinations between “Visited” / “Planned”  
-  - Added all-destinations page  
-    - Grouped by category  
-    - Subdivided into visited & planned  
-  - Added stats page with:  
-    - Pie chart of visited vs planned  
-    - Bar chart of categories (planned & visited counts)  
-  - Added support for adding destinations via coordinates directly from any route (`/`, `/stat`, `/destination`)  
-  - Polished UI with modals/dialogs for add/edit  
-
-- 🔄 **Day 7 – Deployment & Final Touches**  
-  - Deploy frontend to Vercel  
-  - Deploy backend to Render (or Railway/Heroku alternative)  
-  - Use MongoDB Atlas (free tier)  
-  - Test complete user flow → signup → add destinations → view on map  
-  - Add README screenshots + demo link to GitHub repo  
+* **Day 1-2**: Project setup, backend models (User, Destination), CRUD APIs, JWT authentication.
+* **Day 3**: Map integration with Leaflet + OSM, drop pin → save destination.
+* **Day 4**: Sidebar & destination cards with shadcn/ui, map zoom on card click.
+* **Day 5**: Categories & tags, Nominatim search API, save searched locations.
+* **Day 6**: Toggle visited/planned, all-destinations page, stats dashboard (pie & bar chart), coordinate-based destination addition, polished UI.
+* **Day 7**: Deployment (Vercel + Render), MongoDB Atlas integration, README & screenshots.
 
 ---
 
-## 🧑‍💻 Future Improvements  
-- Social sharing (share your WanderList with friends).  
-- Weather integration for destinations.  
-- Trip itinerary planner with connected routes.  
-- Offline map support.  
+## 🧑‍💻 Future Improvements
+
+* Social sharing for your WanderList.
+* Weather integration for destinations.
+* Trip itinerary planner with route suggestions.
+* Offline map support.
 
 ---
 
-## 📄 License  
-MIT License  
+## 📄 License
+
+MIT License

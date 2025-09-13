@@ -16,7 +16,6 @@ import {
 	PieChart,
 	Pie,
 	Cell,
-	Legend,
 } from "recharts";
 import { categoryTailwind } from "@/components/map/markerIcons";
 
@@ -78,7 +77,7 @@ export default function StatsPage({ destinations }: StatsPageProps) {
 									cy="50%"
 									outerRadius={80}
 								>
-									{data.map((entry, index) => (
+									{data.map((_, index) => (
 										<Cell key={`cell-${index}`} fill={COLORS[index]} />
 									))}
 								</Pie>
@@ -151,7 +150,7 @@ export default function StatsPage({ destinations }: StatsPageProps) {
 						<ResponsiveContainer width="100%" height={250}>
 							<BarChart data={categoryData}>
 								<XAxis dataKey="category" />
-								<YAxis />
+								<YAxis allowDecimals={false} />
 								<Tooltip />
 								<Bar dataKey="visited" stackId="a" fill={COLORS[0]} />
 								<Bar dataKey="planned" stackId="a" fill={COLORS[1]} />

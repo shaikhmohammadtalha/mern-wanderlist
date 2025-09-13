@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-	res.json({ message: "WanderList API is running 🚀" });
+router.get("/", (req: Request, res: Response) => {
+	res.status(200).json({ status: "ok" });
 });
 
 export default router;

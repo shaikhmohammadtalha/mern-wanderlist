@@ -31,7 +31,17 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { categoryTailwind } from "../map/markerIcons";
 
 interface DestinationCardProps {
@@ -229,7 +239,7 @@ export default function DestinationCard({
 							</Button>
 						)}
 
-						<div className="text-xs text-muted-foreground">
+						<div className="text-xs text-muted-foreground mt-1">
 							{isMobile ? (
 								<>
 									{editedAt ? "Edited " : "Created "}

@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { authMiddleware } from "../middleware/auth";
+import { Router, Response } from "express";
+import { authMiddleware, AuthRequest } from "../middleware/auth";
 import {
 	addDestination,
 	getDestinations,
@@ -9,9 +9,17 @@ import {
 
 const router = Router();
 
-router.post("/", authMiddleware, addDestination);
-router.get("/", authMiddleware, getDestinations);
-router.patch("/:id", authMiddleware, updateDestination);
-router.delete("/:id", authMiddleware, deleteDestination);
+router.post("/", authMiddleware, (req: AuthRequest, res: Response) =>
+	addDestination(req, res)
+);
+router.get("/", authMiddleware, (req: AuthRequest, res: Response) =>
+	getDestinations(req, res)
+);
+router.patch("/:id", authMiddleware, (req: AuthRequest, res: Response) =>
+	updateDestination(req, res)
+);
+router.delete("/:id", authMiddleware, (req: AuthRequest, res: Response) =>
+	deleteDestination(req, res)
+);
 
 export default router;

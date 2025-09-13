@@ -53,14 +53,12 @@ interface AddDestinationPopupProps {
 	}) => void;
 }
 
-
 export default function AddDestinationPopup({
 	open,
 	onOpenChange,
 	mapCoordinates,
 	manualMode,
 	manualLocation,
-	onSetManualMode,
 	onSetManualLocation,
 }: AddDestinationPopupProps) {
 	const [name, setName] = useState("");
@@ -72,6 +70,7 @@ export default function AddDestinationPopup({
 	const [lat, setLat] = useState<number | "">("");
 	const [lng, setLng] = useState<number | "">("");
 	const [editingCoords, setEditingCoords] = useState(false);
+	const [error, setError] = useState("");
 
 	const createDestination = useCreateDestination();
 
@@ -87,7 +86,11 @@ export default function AddDestinationPopup({
 	}, [manualMode, mapCoordinates, manualLocation]);
 
 	const handleSave = () => {
-		if (!name.trim()) return;
+		setError("");
+		if (!name.trim()) {
+			setError("Please enter a destination name.");
+			return;
+		}
 
 		let finalLat: number | null = lat !== "" ? Number(lat) : null;
 		let finalLng: number | null = lng !== "" ? Number(lng) : null;
@@ -99,7 +102,10 @@ export default function AddDestinationPopup({
 			} else if (mapCoordinates) {
 				finalLat = mapCoordinates.lat;
 				finalLng = mapCoordinates.lng;
-			} else return; // no coordinates
+			} else {
+				setError("Please provide valid coordinates.");
+				return; // no coordinates
+			}
 		}
 
 		const coordinates = { lat: finalLat, lng: finalLng };
@@ -312,6 +318,8 @@ export default function AddDestinationPopup({
 						</Select>
 					</div>
 				</div>
+
+				{error && <p className="text-red-500 text-sm">{error}</p>}
 
 				<DialogFooter>
 					<DialogClose asChild>

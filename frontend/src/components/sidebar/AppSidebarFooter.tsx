@@ -11,9 +11,11 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 } from "../ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AppSidebarFooter() {
 	const username = localStorage.getItem("username") || "User";
+	const { setIsAuth } = useAuth();
 
 	return (
 		<SidebarFooter>
@@ -32,11 +34,15 @@ export default function AppSidebarFooter() {
 							align="end"
 							className="w-[--radix-popper-anchor-width]"
 						>
-							<DropdownMenuItem>
-								<span>Account</span>
-							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<span>Sign out</span> {/* implement later */}
+							<DropdownMenuItem
+								onClick={() => {
+									localStorage.removeItem("token");
+									localStorage.removeItem("username");
+									setIsAuth(false);
+									// Make sure setIsAuth is accessible in this component
+								}}
+							>
+								<span>Sign out</span>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>

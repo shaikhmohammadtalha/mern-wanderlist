@@ -1,7 +1,17 @@
 import { Marker, Popup } from "react-leaflet";
 import { Button } from "@/components/ui/button";
 import { MapPin, Trash } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { categoryIcons } from "./markerIcons";
 import type { Destination } from "@/types/destination";
 

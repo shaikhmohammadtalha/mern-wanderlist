@@ -7,7 +7,14 @@ import type { SearchResult } from "@/hooks/useSearchDestinations";
 import { SidebarTrigger } from "./ui/sidebar";
 import SearchBar from "./searchbar/SearchBar";
 import { NavLink } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, User2 } from "lucide-react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 interface AppNavbarProps {
 	onSearch: (query: string) => void;
@@ -32,6 +39,9 @@ export default function AppNavbar({
 	setSidebarOpen,
 	onAddDestination,
 }: AppNavbarProps) {
+	const username = localStorage.getItem("username") || "User";
+	const { setIsAuth } = useAuth();
+
 	return (
 		<header className="border-b bg-background">
 			<NavigationMenu className="w-full p-4">
@@ -40,7 +50,7 @@ export default function AppNavbar({
 					<div className="flex items-center gap-2">
 						<SidebarTrigger onClick={() => setSidebarOpen(!sidebarOpen)} />
 						<NavLink to="/" className="font-semibold text-lg hover:underline">
-							Travel Planner
+							WanderList
 						</NavLink>
 					</div>
 
@@ -112,6 +122,28 @@ export default function AppNavbar({
 								onResultClick={onResultClick}
 							/>
 						</NavigationMenuItem>
+
+						{/* User dropdown */}
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+									<User2 className="w-5 h-5" /> {/* user icon */}
+									{username}
+								</button>
+							</DropdownMenuTrigger>
+
+							<DropdownMenuContent side="bottom" align="end" className="w-40">
+								<DropdownMenuItem
+									onClick={() => {
+										localStorage.removeItem("token");
+										localStorage.removeItem("username");
+										setIsAuth?.(false); // make sure you pass setIsAuth from App.tsx to AppNavbar
+									}}
+								>
+									Sign out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</NavigationMenuList>
 			</NavigationMenu>

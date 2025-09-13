@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function useUpdateDestination() {
 	const queryClient = useQueryClient();
@@ -7,7 +8,7 @@ export function useUpdateDestination() {
 	return useMutation({
 		mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
 			const res = await axios.patch(
-				`http://localhost:5000/api/destinations/${id}`,
+				`${API_URL}/api/destinations/${id}`,
 				updates,
 				{
 					headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
 	MapContainer,
 	TileLayer,
@@ -78,7 +78,6 @@ export default function Map({
 	popupOpen,
 	setPopupOpen,
 }: MapProps) {
-	
 	const { mutate: createDestination } = useCreateDestination();
 
 	// Handle map clicks to drop new pin

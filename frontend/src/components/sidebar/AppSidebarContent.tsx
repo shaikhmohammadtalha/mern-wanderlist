@@ -27,28 +27,21 @@ export default function AppSidebarContent({
 }: AppSidebarContentProps) {
 	return (
 		<div className="flex-1 overflow-y-auto max-h-screen">
-			
 			<Collapsible defaultOpen className="group/collapsible">
-				
 				<SidebarGroup>
-					
 					<SidebarGroupLabel asChild>
-						
 						<CollapsibleTrigger className="flex items-center justify-between w-full">
 							<span className="flex items-center gap-2">Destinations</span>
 							<ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
 						</CollapsibleTrigger>
 					</SidebarGroupLabel>
 					<CollapsibleContent>
-						
 						<SidebarGroupContent className="my-2 flex flex-col gap-2">
-							
 							{/* First item: Add Destination */}
 							<button
 								className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-primary hover:bg-primary/10 rounded"
 								onClick={onAddDestination}
 							>
-								
 								<Plus className="w-4 h-4" /> Add Destination
 							</button>
 							{destinations.map((d) => (

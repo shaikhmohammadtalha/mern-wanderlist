@@ -3,48 +3,39 @@ import Map from "@/components/map/Map";
 import Login from "./app/(auth)/login/page";
 import Signup from "./app/(auth)/signup/page";
 import type { Destination } from "@/types/destination";
-import { useUpdateDestination } from "./hooks/useUpdateDestination";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useDeleteDestination } from "./hooks/useDeleteDestination";
-import {
-	SidebarProvider,
-	SidebarInset,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AppSidebar from "./components/sidebar/AppSidebar";
 import AppNavbar from "./components/AppNavbar";
-import { useSearchDestinations } from "./hooks/useSearchDestinations";
 import { Routes, Route, Navigate } from "react-router-dom";
 import StatsPage from "./components/stats/StatsPage";
-import DestinationsPage from "./app/(auth)/destination/Destination";
-import { useCreateDestination } from "@/hooks/useDestinations";
+import DestinationsPage from "./app/destination/Destination";
 import AddDestinationPopup from "./components/map/AddDestinationPopup";
+import {
+	useCreateDestination,
+	useUpdateDestination,
+	useDeleteDestination,
+	useDestinations,
+	useSearchDestinations,
+} from "@/hooks/useDestinations";
+import SearchResultsPanel from "@/components/search/SearchResultsPanel";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-	const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
-	const [showSignup, setShowSignup] = useState(false);
+
+	const { isAuth } = useAuth();
+	
 	const [activeDestinationId, setActiveDestinationId] = useState<string | null>(
 		null
 	);
 
-	const { data: destinations = [] } = useQuery<Destination[]>({
-		queryKey: ["destinations"],
-		queryFn: async () => {
-			const res = await axios.get("http://localhost:5000/api/destinations", {
-				headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-			});
-			return res.data.destinations as Destination[];
-		},
-	});
-
+	const { destinations } = useDestinations();
 	const { mutate: deleteDestination } = useDeleteDestination();
-	const handleDelete = (id: string) => {
-		deleteDestination(id);
-	};
 	const { mutate: updateDestination } = useUpdateDestination();
-	const handleEdit = (id: string, updates: Partial<Destination>) => {
+	const { mutate: createDestination } = useCreateDestination();
+
+	const handleDelete = (id: string) => deleteDestination(id);
+	const handleEdit = (id: string, updates: Partial<Destination>) =>
 		updateDestination({ id, updates });
-	};
 
 	const [debouncedQuery, setDebouncedQuery] = useState("");
 	const [submittedQuery, setSubmittedQuery] = useState("");
@@ -53,7 +44,6 @@ function App() {
 		loading: suggestionLoading,
 		error: suggestionError,
 	} = useSearchDestinations(debouncedQuery);
-
 	const {
 		results: searchResults,
 		loading,
@@ -64,9 +54,7 @@ function App() {
 		lat: number;
 		lng: number;
 	} | null>(null);
-
-	const [sidebarOpen, setSidebarOpen] = useState(true); // default open on desktop
-
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [selectedPos, setSelectedPos] = useState<{
 		lat: number;
 		lng: number;
@@ -78,47 +66,33 @@ function App() {
 	} | null>(null);
 	const [popupOpen, setPopupOpen] = useState(false);
 
-	const { mutate: createDestination } = useCreateDestination();
-
 	if (!isAuth) {
+		// user not authenticated → only show login/signup pages
 		return (
-			<div className="h-screen flex flex-col justify-center items-center gap-4">
-				{showSignup ? (
-					<Signup onSuccess={() => setIsAuth(true)} />
-				) : (
-					<Login onSuccess={() => setIsAuth(true)} />
-				)}
-				<button
-					className="text-blue-500 underline"
-					onClick={() => setShowSignup(!showSignup)}
-				>
-					{showSignup
-						? "Already have an account? Login"
-						: "Don’t have an account? Signup"}
-				</button>
-			</div>
+			<Routes>
+				<Route path="/login" element={<Login />} />
+				<Route path="/signup" element={<Signup />} />
+				<Route path="*" element={<Navigate to="/login" replace />} />
+			</Routes>
 		);
 	}
 
 	return (
 		<SidebarProvider>
-			{/* Shadcn Sidebar */}
 			<AppSidebar
 				destinations={destinations}
 				onDelete={handleDelete}
 				onEdit={handleEdit}
 				onFocus={(id) => setActiveDestinationId(id)}
 				onAddDestination={() => {
-					setSelectedPos(null); // clear map click
-					setManualMode(true); // enable manual entry
-					setManualLocation({ lat: 0, lng: 0 }); // or leave null if you prefer blank
-					setPopupOpen(true); // open the AddDestinationPopup
+					setSelectedPos(null);
+					setManualMode(true);
+					setManualLocation({ lat: 0, lng: 0 });
+					setPopupOpen(true);
 				}}
 			/>
 
-			{/* Main content area that respects sidebar width */}
 			<SidebarInset className="flex flex-col h-screen overflow-hidden">
-				{/* App Navbar */}
 				<AppNavbar
 					onSearch={(query) => setSubmittedQuery(query)}
 					onDebounce={(query) => setDebouncedQuery(query)}
@@ -133,80 +107,49 @@ function App() {
 					onAddDestination={() => {
 						setSelectedPos(null);
 						setManualMode(true);
-						setManualLocation(null);
+						setManualLocation({ lat: 0, lng: 0 });
 						setPopupOpen(true);
 					}}
 				/>
 
-				{/* Search results preview */}
-				{(loading || error || searchResults.length > 0) && (
-					<div className="mx-4 my-2 rounded-lg border bg-card shadow-sm max-h-60 overflow-y-auto z-10">
-						<h2 className="text-sm font-semibold px-3 py-2 border-b">
-							Search Results
-						</h2>
-
-						{loading && (
-							<p className="px-3 py-2 text-xs text-muted-foreground">
-								Searching…
-							</p>
-						)}
-
-						{error && (
-							<p className="px-3 py-2 text-xs text-red-500">{error.message}</p>
-						)}
-
-						{searchResults.length > 0 && (
-							<ul className="divide-y">
-								{searchResults.map((r, idx) => (
-									<li
-										key={idx}
-										className="px-3 py-2 text-sm hover:bg-accent/50 cursor-pointer transition-colors"
-										onClick={() =>
-											setSearchLocation({
-												lat: parseFloat(r.lat),
-												lng: parseFloat(r.lon),
-											})
-										}
-									>
-										{r.display_name}
-									</li>
-								))}
-							</ul>
-						)}
-					</div>
-				)}
 				<main className="flex-1 relative z-0 overflow-y-auto">
 					<Routes>
-						{/* Home → Map */}
 						<Route
 							path="/"
 							element={
-								<Map
-									destinations={destinations}
-									activeDestinationId={activeDestinationId}
-									onDelete={handleDelete}
-									onFocus={(id) => setActiveDestinationId(id)}
-									searchLocation={searchLocation}
-									selectedPos={selectedPos}
-									setSelectedPos={setSelectedPos}
-									manualMode={manualMode}
-									setManualMode={setManualMode}
-									manualLocation={manualLocation}
-									setManualLocation={setManualLocation}
-									popupOpen={popupOpen}
-									setPopupOpen={setPopupOpen}
-								/>
+								<>
+									<SearchResultsPanel
+										loading={loading}
+										error={error}
+										results={searchResults}
+										onSelect={(lat, lng) => setSearchLocation({ lat, lng })}
+										onClose={() => {
+											setSubmittedQuery("");
+											setSearchLocation(null);
+										}}
+									/>
+									<Map
+										destinations={destinations}
+										activeDestinationId={activeDestinationId}
+										onDelete={handleDelete}
+										onFocus={(id) => setActiveDestinationId(id)}
+										searchLocation={searchLocation}
+										selectedPos={selectedPos}
+										setSelectedPos={setSelectedPos}
+										manualMode={manualMode}
+										setManualMode={setManualMode}
+										manualLocation={manualLocation}
+										setManualLocation={setManualLocation}
+										popupOpen={popupOpen}
+										setPopupOpen={setPopupOpen}
+									/>
+								</>
 							}
 						/>
-
-						{/* Stats Page */}
 						<Route
 							path="/stats"
 							element={<StatsPage destinations={destinations} />}
 						/>
-
-						{/* Redirect any unknown URL */}
-						<Route path="*" element={<Navigate to="/" replace />} />
 						<Route
 							path="/destinations"
 							element={
@@ -218,6 +161,7 @@ function App() {
 								/>
 							}
 						/>
+						<Route path="*" element={<Navigate to="/" replace />} />
 					</Routes>
 
 					{popupOpen && (

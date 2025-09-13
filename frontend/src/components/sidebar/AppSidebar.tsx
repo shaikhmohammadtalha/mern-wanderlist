@@ -2,6 +2,7 @@ import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import AppSidebarContent from "./AppSidebarContent";
 import AppSidebarFooter from "./AppSidebarFooter";
 import type { Destination } from "@/types/destination";
+
 interface AppSidebarProps {
 	destinations: Destination[];
 	onDelete?: (id: string) => void;
@@ -26,7 +27,7 @@ export default function AppSidebar({
 					onFocus={onFocus}
 					onAddDestination={onAddDestination}
 				/>
-				<AppSidebarFooter />
+				<AppSidebarFooter/>
 			</SidebarContent>
 		</Sidebar>
 	);
