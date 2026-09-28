@@ -7,13 +7,13 @@ import type { SearchResult } from "@/hooks/useDestinations";
 import { SidebarTrigger } from "./ui/sidebar";
 import SearchBar from "./searchbar/SearchBar";
 import { NavLink } from "react-router-dom";
-import { Plus, User2 } from "lucide-react";
+import { Plus, User2, MapPin } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 
 interface AppNavbarProps {
@@ -43,15 +43,19 @@ export default function AppNavbar({
 	const { setIsAuth } = useAuth();
 
 	return (
-		<header className="border-b bg-background">
-			<NavigationMenu className="w-full p-4">
-				<NavigationMenuList className="w-full flex items-center justify-between">
-					{/* Left: Sidebar toggle + app title */}
+		<header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/90 shadow-sm">
+			<NavigationMenu className="w-full px-4 h-16">
+				<NavigationMenuList className="w-full h-full flex items-center justify-between">
+					{/* Left: Brand + Sidebar toggle */}
 					<div className="flex items-center gap-2">
 						<SidebarTrigger onClick={() => setSidebarOpen(!sidebarOpen)} />
-						<NavLink to="/" className="font-semibold text-lg hover:underline">
-							WanderList
-						</NavLink>
+
+						<div className="flex items-center gap-2">
+							<div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
+								<MapPin className="w-4 h-4" />
+							</div>
+							<span className="font-semibold">WanderList</span>
+						</div>
 					</div>
 
 					{/* Right: Navigation links + Search */}
@@ -62,8 +66,8 @@ export default function AppNavbar({
 								className={({ isActive }) =>
 									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 										isActive
-											? "bg-accent text-accent-foreground"
-											: "hover:bg-accent hover:text-accent-foreground"
+											? "border-b-2 border-primary text-primary"
+											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
 									}`
 								}
 							>
@@ -78,8 +82,8 @@ export default function AppNavbar({
 								className={({ isActive }) =>
 									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 										isActive
-											? "bg-accent text-accent-foreground"
-											: "hover:bg-accent hover:text-accent-foreground"
+											? "border-b-2 border-primary text-primary"
+											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
 									}`
 								}
 							>
@@ -93,8 +97,8 @@ export default function AppNavbar({
 								className={({ isActive }) =>
 									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 										isActive
-											? "bg-accent text-accent-foreground"
-											: "hover:bg-accent hover:text-accent-foreground"
+											? "border-b-2 border-primary text-primary"
+											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
 									}`
 								}
 							>
@@ -102,10 +106,11 @@ export default function AppNavbar({
 							</NavLink>
 						</NavigationMenuItem>
 
+						{/* Add Destination button */}
 						<NavigationMenuItem>
 							<button
 								onClick={onAddDestination}
-								className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary hover:bg-primary/10"
+								className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
 							>
 								<Plus className="w-4 h-4" />
 								Add Destination
@@ -124,26 +129,28 @@ export default function AppNavbar({
 						</NavigationMenuItem>
 
 						{/* User dropdown */}
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-									<User2 className="w-5 h-5" /> {/* user icon */}
-									{username}
-								</button>
-							</DropdownMenuTrigger>
+						<div className="relative">
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
+										<User2 className="w-5 h-5" /> {/* user icon */}
+										{username}
+									</button>
+								</DropdownMenuTrigger>
 
-							<DropdownMenuContent side="bottom" align="end" className="w-40">
-								<DropdownMenuItem
-									onClick={() => {
-										localStorage.removeItem("token");
-										localStorage.removeItem("username");
-										setIsAuth?.(false); // make sure you pass setIsAuth from App.tsx to AppNavbar
-									}}
-								>
-									Sign out
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+								<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
+									<DropdownMenuItem
+										onClick={() => {
+											localStorage.removeItem("token");
+											localStorage.removeItem("username");
+											setIsAuth?.(false);
+										}}
+									>
+										Sign out
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</div>
 					</div>
 				</NavigationMenuList>
 			</NavigationMenu>

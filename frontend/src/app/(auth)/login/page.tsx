@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { MapPin } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -40,80 +36,76 @@ export default function Login() {
 	});
 
 	return (
-		<div className="flex items-center justify-center min-h-screen">
-			<Card className="w-full max-w-md shadow-md border border-gray-200 ">
-				<CardHeader>
-					<CardTitle className="text-2xl font-bold text-center">
-						Welcome back
-					</CardTitle>
+		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+			<div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl border border-slate-200">
+				<div className="text-center mb-6">
+					<div className="mx-auto w-14 h-14 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-medium mb-2">
+						<div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+							<MapPin className="w-4 h-4" />
+						</div>
+					</div>
+					<h1 className="text-2xl font-bold text-center">Welcome back</h1>
 					<p className="text-sm text-center text-muted-foreground mt-1">
 						Sign in to access your account on WanderList.
 					</p>
-				</CardHeader>
-				<CardContent>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							mutation.mutate();
-						}}
-						className="space-y-5"
+				</div>
+
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						mutation.mutate();
+					}}
+					className="space-y-6"
+				>
+					<div>
+						<label className="block text-sm font-medium mb-2">Email</label>
+						<input
+							type="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							placeholder="Enter your email"
+							required
+							className="w-full rounded-xl border border-slate-300 px-4 py-3 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+						/>
+					</div>
+
+					<div>
+						<label className="block text-sm font-medium mb-2">Password</label>
+						<input
+							type="password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							placeholder="Enter your password"
+							required
+							className="w-full rounded-xl border border-slate-300 px-4 py-3 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+						/>
+					</div>
+
+					<button
+						type="submit"
+						className="w-full rounded-xl bg-primary px-4 py-3 text-lg font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled={mutation.isPending}
 					>
-						{/* Email */}
-						<div className="relative">
-							<Label htmlFor="email">Email</Label>
-							<Input
-								id="email"
-								type="email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								placeholder="Enter your email"
-								required
-								className="mt-2 border-gray-300"
-							/>
-						</div>
+						{mutation.isPending ? "Logging in..." : "Login"}
+					</button>
 
-						{/* Password */}
-						<div className="relative">
-							<Label htmlFor="password">Password</Label>
-							<Input
-								id="password"
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								placeholder="Enter your password"
-								required
-								className="mt-2 peer border-gray-300"
-							/>
-						</div>
-
-						{/* Login Button */}
-						<Button
-							type="submit"
-							className="w-full mt-2 py-2 rounded-lg"
-							disabled={mutation.isPending}
-						>
-							{mutation.isPending ? "Logging in..." : "Login"}
-						</Button>
-					</form>
-
-					{/* Error Message */}
 					{mutation.isError && (
-						<p className="text-center mt-3 text-sm font-medium text-red-600">
+						<p className="mt-3 text-sm font-medium text-destructive">
 							❌ {mutation.error.message}
 						</p>
 					)}
 
-					<p className="text-center text-sm mt-6">
-						Don’t have an account?{" "}
-						<Link
-							to="/signup"
+					<p className="mt-6 text-sm">
+						Don't have an account?{" "}
+						<a
+						href="/signup"
 							className="font-medium hover:text-primary hover:underline"
 						>
 							Sign up
-						</Link>
+						</a>
 					</p>
-				</CardContent>
-			</Card>
+				</form>
+			</div>
 		</div>
 	);
 }

@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -119,7 +120,7 @@ export default function AddDestinationPopup({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[425px] rounded-xl">
 				<DialogHeader>
 					<DialogTitle>Add Destination</DialogTitle>
 				</DialogHeader>
@@ -201,11 +202,11 @@ export default function AddDestinationPopup({
 					{/* Notes */}
 					<div className="grid gap-2">
 						<Label htmlFor="dest-notes">Notes</Label>
-						<textarea
+						<Textarea
 							id="dest-notes"
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
-							className="border rounded p-2"
+							className="rounded-xl border border-input p-3 w-full resize-none"
 							placeholder="Your notes..."
 						/>
 					</div>
@@ -307,7 +308,7 @@ export default function AddDestinationPopup({
 
 				{error && <p className="text-red-500 text-sm">{error}</p>}
 
-				<DialogFooter>
+				<DialogFooter className="flex justify-between">
 					<DialogClose asChild>
 						<Button variant="outline">Cancel</Button>
 					</DialogClose>

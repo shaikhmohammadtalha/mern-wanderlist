@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import SeoHelmet from "./components/SeoHelmet.tsx";
+import { Toaster } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -23,5 +24,6 @@ createRoot(document.getElementById("root")!).render(
 				</HelmetProvider>
 			</BrowserRouter>
 		</QueryClientProvider>
+		<Toaster />
 	</StrictMode>
 );

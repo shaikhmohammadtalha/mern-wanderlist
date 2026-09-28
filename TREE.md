@@ -73,6 +73,8 @@
 │   │   ├── components
 │   │   │   ├── AppNavbar.tsx
 │   │   │   ├── SeoHelmet.tsx
+│   │   │   ├── app
+│   │   │   │   └── (destinations)
 │   │   │   ├── auth
 │   │   │   │   └── ProtectedRoute.tsx
 │   │   │   ├── destinations
@@ -132,6 +134,7 @@
 │   ├── tsconfig.node.json
 │   └── vite.config.ts
 ├── package.json
+├── pnpm-lock.yaml
 └── screenshots
     ├── AllDestinations.png
     ├── Map.png

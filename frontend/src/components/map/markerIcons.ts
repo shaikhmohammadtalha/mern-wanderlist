@@ -21,11 +21,11 @@ export const categoryIcons: Record<Category, L.Icon> = {
 };
 
 export const categoryTailwind: Record<Category, string> = {
-	None: 
+	None:
 		"bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-700",
 	Adventure:
 		"bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200 border-red-300 dark:border-red-700",
-	Food: 
+	Food:
 		"bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200 border-orange-300 dark:border-orange-700",
 	Relaxation:
 		"bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700",
@@ -33,4 +33,14 @@ export const categoryTailwind: Record<Category, string> = {
 		"bg-violet-200 text-violet-800 dark:bg-violet-800 dark:text-violet-200 border-violet-300 dark:border-violet-700",
 	Nature:
 		"bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200 border-green-300 dark:border-green-700",
+};
+
+/** Solid dot color for category badges / indicators */
+export const categoryDot: Record<Category, string> = {
+	None: "bg-slate-400",
+	Adventure: "bg-red-500",
+	Food: "bg-orange-500",
+	Relaxation: "bg-blue-500",
+	Cultural: "bg-violet-500",
+	Nature: "bg-green-500",
 };

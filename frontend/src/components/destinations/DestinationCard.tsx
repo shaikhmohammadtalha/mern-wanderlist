@@ -42,7 +42,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { categoryTailwind } from "../map/markerIcons";
+import { categoryTailwind, categoryDot } from "../map/markerIcons";
 
 interface DestinationCardProps {
 	id: string;
@@ -81,12 +81,14 @@ export default function DestinationCard({
 	const isMobile = useMediaQuery("(max-width: 640px)");
 
 	return (
-		// Change Card width dirrectly from ui/sidebar.tsx const SIDEBAR_WIDTH =
-		<Card className="my-1 mx-2 shadow hover:shadow-lg transition-all">
-			<CardHeader>
+		<Card className="my-2 mx-2 shadow-sm hover:shadow-lg transition-all duration-200 border-border/80 hover:border-primary/30">
+			<CardHeader className="pb-2">
 				<CardTitle className="flex justify-between items-center truncate">
-					<span>{name}</span>
-					<Badge variant={visited ? "default" : "outline"}>
+					<span className="text-base font-semibold">{name}</span>
+					<Badge
+						variant={visited ? "default" : "outline"}
+						className={visited ? "bg-primary/10 text-primary border-primary/30" : ""}
+					>
 						{visited ? "Visited" : "Planned"}
 					</Badge>
 				</CardTitle>
@@ -129,7 +131,9 @@ export default function DestinationCard({
 											type="button"
 											onClick={() =>
 												setEditTagsList(
-													editTagsList.filter((_, idx) => idx !== i)
+													editTagsList.filter(
+														(_, idx) => idx !== i
+													)
 												)
 											}
 											className="ml-1 text-xs text-muted-foreground hover:text-foreground"
@@ -146,7 +150,10 @@ export default function DestinationCard({
 										if (e.key === "Enter" || e.key === ",") {
 											e.preventDefault();
 											if (tagInput.trim()) {
-												setEditTagsList([...editTagsList, tagInput.trim()]);
+												setEditTagsList([
+													...editTagsList,
+													tagInput.trim(),
+												]);
 												setTagInput("");
 											}
 										}
@@ -160,7 +167,10 @@ export default function DestinationCard({
 									variant="outline"
 									onClick={() => {
 										if (tagInput.trim()) {
-											setEditTagsList([...editTagsList, tagInput.trim()]);
+											setEditTagsList([
+												...editTagsList,
+												tagInput.trim(),
+											]);
 											setTagInput("");
 										}
 									}}
@@ -211,12 +221,17 @@ export default function DestinationCard({
 						<CardDescription>{notes || "No notes provided."}</CardDescription>
 						<div className="text-sm">
 							Category:{" "}
-							<Badge
-								variant="outline"
-								className={`ml-1 ${categoryTailwind[category]}`}
-							>
-								{category}
-							</Badge>
+							<span className="inline-flex items-center gap-1.5 ml-1">
+								<span
+									className={`w-2 h-2 rounded-full ${categoryDot[category]}`}
+								/>
+								<Badge
+									variant="outline"
+									className={`ml-1 ${categoryTailwind[category]}`}
+								>
+									{category}
+								</Badge>
+							</span>
 						</div>
 						{tags && tags.length > 0 && (
 							<div className="flex flex-wrap gap-2">
@@ -243,9 +258,12 @@ export default function DestinationCard({
 							{isMobile ? (
 								<>
 									{editedAt ? "Edited " : "Created "}
-									{formatDistanceToNow(new Date(editedAt ?? createdAt), {
-										addSuffix: true,
-									})}{" "}
+									{formatDistanceToNow(
+										new Date(editedAt ?? createdAt),
+										{
+											addSuffix: true,
+										}
+									)}{" "}
 									<span className="text-muted-foreground/70">
 										(
 										{format(
@@ -261,9 +279,12 @@ export default function DestinationCard({
 										<TooltipTrigger asChild>
 											<span className="cursor-help">
 												{editedAt ? "Edited " : "Created "}
-												{formatDistanceToNow(new Date(editedAt ?? createdAt), {
-													addSuffix: true,
-												})}
+												{formatDistanceToNow(
+													new Date(editedAt ?? createdAt),
+													{
+														addSuffix: true,
+													}
+												)}
 											</span>
 										</TooltipTrigger>
 										<TooltipContent side="bottom">
@@ -327,7 +348,9 @@ export default function DestinationCard({
 								</AlertDialogTrigger>
 								<AlertDialogContent>
 									<AlertDialogHeader>
-										<AlertDialogTitle>Delete destination?</AlertDialogTitle>
+										<AlertDialogTitle>
+											Delete destination?
+										</AlertDialogTitle>
 										<AlertDialogDescription>
 											This action cannot be undone. The destination{" "}
 											<span className="font-semibold">{name}</span> will be

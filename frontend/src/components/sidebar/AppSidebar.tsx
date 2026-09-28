@@ -1,7 +1,8 @@
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import AppSidebarContent from "./AppSidebarContent";
 import AppSidebarFooter from "./AppSidebarFooter";
 import type { Destination } from "@/types/destination";
+import { MapPin } from "lucide-react";
 
 interface AppSidebarProps {
 	destinations: Destination[];
@@ -10,6 +11,7 @@ interface AppSidebarProps {
 	onFocus?: (id: string) => void;
 	onAddDestination?: () => void;
 }
+
 export default function AppSidebar({
 	destinations,
 	onDelete,
@@ -18,8 +20,16 @@ export default function AppSidebar({
 	onAddDestination,
 }: AppSidebarProps) {
 	return (
-		<Sidebar className="hidden lg:flex w-[22rem]">
-			<SidebarContent className="flex flex-col h-full">
+		<Sidebar className="hidden lg:flex w-[22rem] border-r border-border">
+			<SidebarHeader className="border-b border-border p-3">
+				<div className="flex items-center gap-3 px-2">
+					<div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-medium">
+						<MapPin className="w-4 h-4" />
+					</div>
+					<h2 className="font-semibold text-sm">WanderList</h2>
+				</div>
+			</SidebarHeader>
+			<SidebarContent>
 				<AppSidebarContent
 					destinations={destinations}
 					onDelete={onDelete}
@@ -27,7 +37,7 @@ export default function AppSidebar({
 					onFocus={onFocus}
 					onAddDestination={onAddDestination}
 				/>
-				<AppSidebarFooter/>
+				<AppSidebarFooter />
 			</SidebarContent>
 		</Sidebar>
 	);

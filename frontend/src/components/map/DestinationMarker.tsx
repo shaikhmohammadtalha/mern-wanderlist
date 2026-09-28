@@ -41,7 +41,7 @@ export default function DestinationMarker({
 						</div>
 					)}
 					<div>Category: {destination.category}</div>
-					<div>Status: {destination.visited ? "📍Visited" : "📌 Planned"}</div>
+					<div>Status: {destination.visited ? "📍 Visited" : "📌 Planned"}</div>
 
 					<div className="flex justify-between gap-1 mt-2">
 						{onFocus && (
@@ -64,7 +64,9 @@ export default function DestinationMarker({
 								</AlertDialogTrigger>
 								<AlertDialogContent>
 									<AlertDialogHeader>
-										<AlertDialogTitle>Delete destination?</AlertDialogTitle>
+										<AlertDialogTitle>
+											Delete destination?
+										</AlertDialogTitle>
 										<AlertDialogDescription>
 											This action cannot be undone. The destination{" "}
 											<span className="font-semibold">{destination.name}</span>{" "}

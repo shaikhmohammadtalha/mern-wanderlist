@@ -106,7 +106,7 @@ export default function SearchBar({
 					}
 				}}
 				placeholder="Search location..."
-				className="w-72 md:w-96 lg:w-[500px]"
+				className="w-72 md:w-96 lg:w-[500px] rounded-xl border border-input bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
 			/>
 
 			{query && (
@@ -117,29 +117,31 @@ export default function SearchBar({
 						onDebounce("");
 						setOpen(false);
 					}}
-					className="absolute right-21 text-gray-400 hover:text-gray-600"
+					className="absolute right-10 text-muted-foreground hover:text-foreground/70"
 				>
 					×
 				</button>
 			)}
 
-			<Button type="submit" size="sm">
+			<Button type="submit" size="sm" className="px-3">
 				Search
 			</Button>
 
 			{/* Dropdown results */}
 			{open && (loading || error || results.length > 0) && (
-				<div className="absolute top-full left-0 mt-1 w-full bg-white shadow-md rounded-md z-50">
+				<div className="absolute top-full left-0 mt-2 w-full rounded-xl border border-border bg-card shadow-lg z-50">
 					{loading && (
 						<p className="text-xs p-2 text-muted-foreground">Searching…</p>
 					)}
-					{error && <p className="text-xs p-2 text-red-500">{error.message}</p>}
-					<ul>
+					{error && <p className="text-xs p-2 text-destructive">{error.message}</p>}
+					<ul className="divide-y divide-border">
 						{results.slice(0, 3).map((r, idx) => (
 							<li
 								key={idx}
-								className={`p-2 cursor-pointer ${
-									highlighted === idx ? "bg-accent" : "hover:bg-accent"
+								className={`px-3 py-2 cursor-pointer text-sm ${
+									highlighted === idx
+									? "bg-accent"
+									: "hover:bg-accent/50"
 								}`}
 								onMouseEnter={() => setHighlighted(idx)}
 								onClick={() => {

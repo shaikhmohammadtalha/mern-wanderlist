@@ -30,20 +30,21 @@ export default function AppSidebarContent({
 			<Collapsible defaultOpen className="group/collapsible">
 				<SidebarGroup>
 					<SidebarGroupLabel asChild>
-						<CollapsibleTrigger className="flex items-center justify-between w-full">
-							<span className="flex items-center gap-2">Destinations</span>
-							<ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+						<CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2">
+							<span className="text-sm font-semibold">Destinations</span>
+							<ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
 						</CollapsibleTrigger>
 					</SidebarGroupLabel>
 					<CollapsibleContent>
 						<SidebarGroupContent className="my-2 flex flex-col gap-2">
-							{/* First item: Add Destination */}
+							{/* Add Destination button */}
 							<button
-								className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-primary hover:bg-primary/10 rounded"
+								className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-primary hover:bg-primary/10 rounded-md mx-2"
 								onClick={onAddDestination}
 							>
 								<Plus className="w-4 h-4" /> Add Destination
 							</button>
+
 							{destinations.map((d) => (
 								<DestinationCard
 									key={d.id}

@@ -29,22 +29,17 @@ export default function AppSidebarFooter() {
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
 
-						<DropdownMenuContent
-							side="top"
-							align="end"
-							className="w-[--radix-popper-anchor-width]"
-						>
+						<DropdownMenuContent side="top" align="end" className="w-40 rounded-md border p-1">
 							<DropdownMenuItem
 								onClick={() => {
 									localStorage.removeItem("token");
 									localStorage.removeItem("username");
-									setIsAuth(false);
-									// Make sure setIsAuth is accessible in this component
+									setIsAuth?.(false);
 								}}
-							>
-								<span>Sign out</span>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
+								>
+									Sign out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
 					</DropdownMenu>
 				</SidebarMenuItem>
 			</SidebarMenu>

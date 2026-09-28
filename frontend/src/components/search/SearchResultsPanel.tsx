@@ -22,13 +22,13 @@ export default function SearchResultsPanel({
 	if (!loading && !error && results.length === 0) return null;
 
 	return (
-		<div className="mx-4 my-2 rounded-lg border bg-card shadow-sm max-h-60 overflow-y-auto z-10">
+		<div className="mx-4 my-2 rounded-xl border bg-card shadow-lg z-10">
 			{/* Header with title + close button */}
 			<div className="flex justify-between items-center px-3 py-2 border-b">
 				<h2 className="text-sm font-semibold">Search Results</h2>
 				<button
 					onClick={onClose}
-					className="text-xs text-muted-foreground hover:text-red-500"
+					className="text-xs text-muted-foreground hover:text-destructive"
 				>
 					✕
 				</button>
@@ -39,11 +39,11 @@ export default function SearchResultsPanel({
 			)}
 
 			{error && (
-				<p className="px-3 py-2 text-xs text-red-500">{error.message}</p>
+				<p className="px-3 py-2 text-xs text-destructive">{error.message}</p>
 			)}
 
 			{results.length > 0 && (
-				<ul className="divide-y">
+				<ul className="divide-y divide-border">
 					{results.map((r, idx) => (
 						<li
 							key={idx}
