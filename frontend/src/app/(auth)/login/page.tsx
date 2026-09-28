@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -97,12 +97,9 @@ export default function Login() {
 
 					<p className="mt-6 text-sm">
 						Don't have an account?{" "}
-						<a
-						href="/signup"
-							className="font-medium hover:text-primary hover:underline"
-						>
+						<Link to="/signup" className="font-medium hover:text-primary hover:underline">
 							Sign up
-						</a>
+						</Link>
 					</p>
 				</form>
 			</div>

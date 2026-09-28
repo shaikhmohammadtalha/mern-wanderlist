@@ -7,7 +7,7 @@ import type { SearchResult } from "@/hooks/useDestinations";
 import { SidebarTrigger } from "./ui/sidebar";
 import SearchBar from "./searchbar/SearchBar";
 import { NavLink } from "react-router-dom";
-import { Plus, User2, MapPin } from "lucide-react";
+import { Plus, User2, MapPin, Menu, List, TrendingUp } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -57,12 +57,61 @@ export default function AppNavbar({
 							<div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
 								<MapPin className="w-4 h-4" />
 							</div>
-							<span className="font-semibold">WanderList</span>
+							<span className="font-semibold hidden sm:block">WanderList</span>
 						</NavLink>
 					</div>
 
-					{/* Right: Navigation links + Search */}
-					<div className="flex flex-wrap items-center gap-4 ml-2">
+					{/* Mobile: Navigation dropdown */}
+					<div className="lg:hidden flex items-center gap-2">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
+									<Menu className="w-5 h-5" /> Menu
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent side="bottom" align="end" className="w-48 rounded-md border p-2 shadow-md">
+								<DropdownMenuItem asChild>
+									<NavLink
+										to="/"
+										className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
+									>
+											<MapPin className="w-4 h-4" /> Map
+									</NavLink>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+										<NavLink
+											to="/destinations"
+											className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
+									>
+												<List className="w-4 h-4" /> All Destinations
+									</NavLink>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+										<NavLink
+											to="/stats"
+											className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
+									>
+												<TrendingUp className="w-4 h-4" /> Stats
+									</NavLink>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+
+						{/* Search on mobile (compact) */}
+							<div className="lg:hidden">
+								<SearchBar
+									onSearch={onSearch}
+									onDebounce={onDebounce}
+									results={results}
+									loading={loading}
+									error={error}
+									onResultClick={onResultClick}
+								/>
+							</div>
+					</div>
+
+					{/* Desktop: Navigation links + Search */}
+					<div className="hidden lg:flex flex-wrap items-center gap-4 ml-2">
 						<NavigationMenuItem>
 							<NavLink
 								to="/"
@@ -75,85 +124,85 @@ export default function AppNavbar({
 								}
 							>
 								Map
-							</NavLink>
-						</NavigationMenuItem>
+								</NavLink>
+							</NavigationMenuItem>
 
-						<NavigationMenuItem>
-							<NavLink
-								to="/destinations"
-								onClick={() => setSidebarOpen(false)}
-								className={({ isActive }) =>
-									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-										isActive
-											? "border-b-2 border-primary text-primary"
-											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
-									}`
-								}
-							>
-								All Destinations
-							</NavLink>
-						</NavigationMenuItem>
+							<NavigationMenuItem>
+								<NavLink
+									to="/destinations"
+									onClick={() => setSidebarOpen(false)}
+									className={({ isActive }) =>
+										`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+											isActive
+												? "border-b-2 border-primary text-primary"
+												: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
+										}`
+									}
+								>
+									All Destinations
+								</NavLink>
+							</NavigationMenuItem>
 
-						<NavigationMenuItem>
-							<NavLink
-								to="/stats"
-								className={({ isActive }) =>
-									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-										isActive
-											? "border-b-2 border-primary text-primary"
-											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
-									}`
-								}
-							>
-								Stats
-							</NavLink>
-						</NavigationMenuItem>
+							<NavigationMenuItem>
+								<NavLink
+									to="/stats"
+									className={({ isActive }) =>
+										`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+											isActive
+												? "border-b-2 border-primary text-primary"
+												: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
+										}`
+									}
+								>
+									Stats
+								</NavLink>
+							</NavigationMenuItem>
 
-						{/* Add Destination button */}
-						<NavigationMenuItem>
-							<button
-								onClick={onAddDestination}
-								className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
-							>
-								<Plus className="w-4 h-4" />
-								Add Destination
-							</button>
-						</NavigationMenuItem>
+							{/* Add Destination button */}
+							<NavigationMenuItem>
+								<button
+									onClick={onAddDestination}
+									className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+								>
+									<Plus className="w-4 h-4" />
+									Add Destination
+								</button>
+							</NavigationMenuItem>
 
-						<NavigationMenuItem>
-							<SearchBar
-								onSearch={onSearch}
-								onDebounce={onDebounce}
-								results={results}
-								loading={loading}
-								error={error}
-								onResultClick={onResultClick}
-							/>
-						</NavigationMenuItem>
+							<NavigationMenuItem>
+								<SearchBar
+									onSearch={onSearch}
+									onDebounce={onDebounce}
+									results={results}
+									loading={loading}
+									error={error}
+									onResultClick={onResultClick}
+								/>
+							</NavigationMenuItem>
 
-						{/* User dropdown */}
-						<div className="relative">
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
-										<User2 className="w-5 h-5" /> {/* user icon */}
-										{username}
-									</button>
-								</DropdownMenuTrigger>
+							{/* User dropdown */}
+							<div className="relative">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
+											<User2 className="w-5 h-5" /> {/* user icon */}
+											{username}
+										</button>
+									</DropdownMenuTrigger>
 
-								<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
-									<DropdownMenuItem
+									<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
+										<DropdownMenuItem
 										onClick={() => {
-											localStorage.removeItem("token");
-											localStorage.removeItem("username");
-											setIsAuth?.(false);
-										}}
-									>
-										Sign out
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
+												localStorage.removeItem("token");
+												localStorage.removeItem("username");
+												setIsAuth?.(false);
+											}}
+										>
+											Sign out
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
 					</div>
 				</NavigationMenuList>
 			</NavigationMenu>
