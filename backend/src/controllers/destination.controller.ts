@@ -7,20 +7,25 @@ import {
 	updateDestinationSchema,
 } from "../utils/zod.schema";
 
-export const addDestination = async (req: AuthRequest, res: Response) => {
+export const addDestination = async (
+	req: AuthRequest,
+	res: Response
+): Promise<void> => {
 	try {
 		const parseResult = destinationSchema.safeParse(req.body);
 		if (!parseResult.success) {
-			return res.status(400).json({
+			res.status(400).json({
 				message: "Invalid input",
 				errors: parseResult.error.issues,
 			});
+			return;
 		}
 		const { name, coordinates, notes, tags, category, visited } =
 			parseResult.data;
 
 		if (!req.user?.id) {
-			return res.status(401).json({ message: "Unauthorized" });
+			res.status(401).json({ message: "Unauthorized" });
+			return;
 		}
 
 		// Check if destination with same name exists for this user
@@ -29,9 +34,10 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 			userId: req.user.id,
 		});
 		if (existingDestination) {
-			return res
+			res
 				.status(400)
 				.json({ message: "Destination already exists for this user" });
+			return;
 		}
 
 		// Save new Destination
@@ -60,25 +66,26 @@ export const addDestination = async (req: AuthRequest, res: Response) => {
 				editedAt: destination.editedAt,
 			},
 		});
-	} catch (err: any) {
-		console.error("Adding Destination error:", err.message || err);
-		res
-			.status(500)
-			.json({ message: "Adding Destination failed", error: err.message });
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : "Unknown error";
+		console.error("Adding Destination error:", message);
+		res.status(500).json({ message: "Adding Destination failed", error: message });
 	}
 };
 
-export const getDestinations = async (req: AuthRequest, res: Response) => {
+export const getDestinations = async (
+	req: AuthRequest,
+	res: Response
+): Promise<void> => {
 	try {
 		// Check auth
 		if (!req.user?.id) {
-			return res.status(401).json({ message: "Unauthorized" });
+			res.status(401).json({ message: "Unauthorized" });
+			return;
 		}
 
 		// Find all destinations for the logged-in user
 		const destinations = await Destination.find({ userId: req.user.id });
-
-		console.log("Destinations found for user", req.user.id, destinations);
 
 		res.status(200).json({
 			destinations: destinations.map((d) => ({
@@ -93,39 +100,46 @@ export const getDestinations = async (req: AuthRequest, res: Response) => {
 				editedAt: d.editedAt,
 			})),
 		});
-	} catch (err: any) {
-		console.error("Getting Destinations error:", err.message || err);
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : "Unknown error";
+		console.error("Getting Destinations error:", message);
 		res.status(500).json({
 			message: "Getting Destinations failed",
-			error: err.message,
+			error: message,
 		});
 	}
 };
 
-export const updateDestination = async (req: AuthRequest, res: Response) => {
+export const updateDestination = async (
+	req: AuthRequest,
+	res: Response
+): Promise<void> => {
 	try {
 		// Validate ID
 		const idValidation = objectIdSchema.safeParse(req.params.id);
 		if (!idValidation.success) {
-			return res.status(400).json({
+			res.status(400).json({
 				message: "Invalid destination ID",
 				errors: idValidation.error.issues,
 			});
+			return;
 		}
 		const destinationId = idValidation.data;
 
 		// Check auth
 		if (!req.user?.id) {
-			return res.status(401).json({ message: "Unauthorized" });
+			res.status(401).json({ message: "Unauthorized" });
+			return;
 		}
 
 		// Validate body
 		const parseResult = updateDestinationSchema.safeParse(req.body);
 		if (!parseResult.success) {
-			return res.status(400).json({
+			res.status(400).json({
 				message: "Invalid input",
 				errors: parseResult.error.issues,
 			});
+			return;
 		}
 		const { notes, tags, category, visited } = parseResult.data;
 
@@ -135,7 +149,8 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 			userId: req.user.id,
 		});
 		if (!destination) {
-			return res.status(404).json({ message: "Destination not found" });
+			res.status(404).json({ message: "Destination not found" });
+			return;
 		}
 
 		// Apply updates only if provided
@@ -163,43 +178,54 @@ export const updateDestination = async (req: AuthRequest, res: Response) => {
 				editedAt: destination.editedAt,
 			},
 		});
-	} catch (err: any) {
-		console.error("Updating Destination error:", err.message || err);
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : "Unknown error";
+		console.error("Updating Destination error:", message);
 		res.status(500).json({
 			message: "Updating Destination failed",
-			error: err.message,
+			error: message,
 		});
 	}
 };
 
-export const deleteDestination = async (req: AuthRequest, res: Response) => {
+export const deleteDestination = async (
+	req: AuthRequest,
+	res: Response
+): Promise<void> => {
 	try {
 		// Validate ID
 		const idValidation = objectIdSchema.safeParse(req.params.id);
 		if (!idValidation.success) {
-			return res.status(400).json({
+			res.status(400).json({
 				message: "Invalid destination ID",
 				errors: idValidation.error.issues,
 			});
+			return;
 		}
 		const destinationId = idValidation.data;
+
 		// Check auth
 		if (!req.user?.id) {
-			return res.status(401).json({ message: "Unauthorized" });
+			res.status(401).json({ message: "Unauthorized" });
+			return;
 		}
+
 		const destination = await Destination.findOneAndDelete({
 			_id: destinationId,
 			userId: req.user.id,
 		});
 		if (!destination) {
-			return res.status(404).json({ message: "Destination not found" });
+			res.status(404).json({ message: "Destination not found" });
+			return;
 		}
+
 		res.status(200).json({ message: "Destination deleted successfully" });
-	} catch (err: any) {
-		console.error("Deleting Destination error:", err.message || err);
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : "Unknown error";
+		console.error("Deleting Destination error:", message);
 		res.status(500).json({
 			message: "Deleting Destination failed",
-			error: err.message,
+			error: message,
 		});
 	}
 };

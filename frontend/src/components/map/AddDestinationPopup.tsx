@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -31,7 +31,15 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { useCreateDestination } from "@/hooks/useDestinations";
+
+export interface DestinationFormData {
+	name: string;
+	notes?: string;
+	tags?: string[];
+	category: Category;
+	visited: boolean;
+	coordinates: { lat: number; lng: number };
+}
 
 interface AddDestinationPopupProps {
 	open: boolean;
@@ -39,18 +47,8 @@ interface AddDestinationPopupProps {
 	mapCoordinates?: { lat: number; lng: number } | null;
 	manualMode: boolean;
 	manualLocation?: { lat: number; lng: number } | null;
-	onSetManualMode: (v: boolean) => void;
 	onSetManualLocation: (loc: { lat: number; lng: number } | null) => void;
-
-	// ✅ Make sure this exists
-	onSave: (data: {
-		name: string;
-		notes?: string;
-		tags?: string[];
-		category: Category;
-		visited: boolean;
-		coordinates: { lat: number; lng: number };
-	}) => void;
+	onSave: (data: DestinationFormData) => void;
 }
 
 export default function AddDestinationPopup({
@@ -60,6 +58,7 @@ export default function AddDestinationPopup({
 	manualMode,
 	manualLocation,
 	onSetManualLocation,
+	onSave,
 }: AddDestinationPopupProps) {
 	const [name, setName] = useState("");
 	const [notes, setNotes] = useState("");
@@ -67,23 +66,17 @@ export default function AddDestinationPopup({
 	const [tagInput, setTagInput] = useState("");
 	const [category, setCategory] = useState<Category>("None");
 	const [visited, setVisited] = useState(false);
-	const [lat, setLat] = useState<number | "">("");
-	const [lng, setLng] = useState<number | "">("");
+	const initialCoordinates = manualMode
+		? manualLocation
+		: mapCoordinates ?? manualLocation;
+	const [lat, setLat] = useState<number | "">(
+		() => initialCoordinates?.lat ?? ""
+	);
+	const [lng, setLng] = useState<number | "">(
+		() => initialCoordinates?.lng ?? ""
+	);
 	const [editingCoords, setEditingCoords] = useState(false);
 	const [error, setError] = useState("");
-
-	const createDestination = useCreateDestination();
-
-	// Sync coordinates on prop change or mode change
-	useEffect(() => {
-		if (manualMode) {
-			setLat(manualLocation?.lat ?? "");
-			setLng(manualLocation?.lng ?? "");
-		} else {
-			setLat(mapCoordinates?.lat ?? manualLocation?.lat ?? "");
-			setLng(mapCoordinates?.lng ?? manualLocation?.lng ?? "");
-		}
-	}, [manualMode, mapCoordinates, manualLocation]);
 
 	const handleSave = () => {
 		setError("");
@@ -104,31 +97,24 @@ export default function AddDestinationPopup({
 				finalLng = mapCoordinates.lng;
 			} else {
 				setError("Please provide valid coordinates.");
-				return; // no coordinates
+				return;
 			}
 		}
 
 		const coordinates = { lat: finalLat, lng: finalLng };
-
 		if (manualMode) onSetManualLocation(coordinates);
 
-		createDestination.mutate(
-			{ name, notes, tags, category, visited, coordinates },
-			{
-				onSuccess: () => {
-					// Reset all UI
-					setName("");
-					setNotes("");
-					setTags([]);
-					setTagInput("");
-					setVisited(false);
-					setLat("");
-					setLng("");
-					setEditingCoords(false);
-					onOpenChange(false);
-				},
-			}
-		);
+		onSave({ name, notes, tags, category, visited, coordinates });
+
+		// Reset all UI
+		setName("");
+		setNotes("");
+		setTags([]);
+		setTagInput("");
+		setVisited(false);
+		setLat("");
+		setLng("");
+		setEditingCoords(false);
 	};
 
 	return (

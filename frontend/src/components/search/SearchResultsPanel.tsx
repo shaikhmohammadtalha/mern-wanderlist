@@ -6,7 +6,7 @@ interface SearchResult {
 
 interface Props {
 	loading: boolean;
-	error: any;
+	error: Error | null;
 	results: SearchResult[];
 	onSelect: (lat: number, lng: number) => void;
 	onClose: () => void;

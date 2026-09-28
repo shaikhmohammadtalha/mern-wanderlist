@@ -3,7 +3,7 @@ import {
 	NavigationMenuItem,
 	NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import type { SearchResult } from "@/hooks/useSearchDestinations";
+import type { SearchResult } from "@/hooks/useDestinations";
 import { SidebarTrigger } from "./ui/sidebar";
 import SearchBar from "./searchbar/SearchBar";
 import { NavLink } from "react-router-dom";

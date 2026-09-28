@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- shared variant helpers are part of this UI module's public API. */
 import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"

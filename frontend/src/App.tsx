@@ -21,9 +21,8 @@ import SearchResultsPanel from "@/components/search/SearchResultsPanel";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
-
 	const { isAuth } = useAuth();
-	
+
 	const [activeDestinationId, setActiveDestinationId] = useState<string | null>(
 		null
 	);
@@ -136,11 +135,7 @@ function App() {
 										searchLocation={searchLocation}
 										selectedPos={selectedPos}
 										setSelectedPos={setSelectedPos}
-										manualMode={manualMode}
 										setManualMode={setManualMode}
-										manualLocation={manualLocation}
-										setManualLocation={setManualLocation}
-										popupOpen={popupOpen}
 										setPopupOpen={setPopupOpen}
 									/>
 								</>
@@ -171,7 +166,6 @@ function App() {
 							mapCoordinates={selectedPos ?? searchLocation ?? null}
 							manualMode={manualMode}
 							manualLocation={manualLocation}
-							onSetManualMode={setManualMode}
 							onSetManualLocation={setManualLocation}
 							onSave={(data) =>
 								createDestination(

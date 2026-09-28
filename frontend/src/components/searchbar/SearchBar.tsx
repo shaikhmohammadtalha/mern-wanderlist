@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { SearchResult } from "@/hooks/useSearchDestinations";
+import type { SearchResult } from "@/hooks/useDestinations";
 
 interface SearchBarProps {
 	onSearch: (query: string) => void;
@@ -48,11 +48,6 @@ export default function SearchBar({
 		return () => clearTimeout(timeout);
 	}, [query, onDebounce]);
 
-	// reset highlight when results change
-	useEffect(() => {
-		setHighlighted(-1);
-	}, [results]);
-
 	// close on outside click
 	useEffect(() => {
 		function handleClickOutside(e: MouseEvent) {
@@ -77,6 +72,7 @@ export default function SearchBar({
 				value={query}
 				onChange={(e) => {
 					setQuery(e.target.value);
+					setHighlighted(-1);
 					setOpen(true);
 				}}
 				onFocus={() => {

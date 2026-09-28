@@ -14,6 +14,11 @@ export interface SearchResult {
 	lon: string;
 }
 
+function getAuthHeaders(): Record<string, string> {
+	const token = localStorage.getItem("token");
+	return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 /* ------------------ Queries ------------------ */
 export function useDestinations() {
 	const { isAuth } = useAuth();
@@ -25,9 +30,8 @@ export function useDestinations() {
 	} = useQuery<Destination[]>({
 		queryKey: ["destinations"],
 		queryFn: async () => {
-			const token = localStorage.getItem("token");
 			const res = await axios.get(`${API_URL}/api/destinations`, {
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
+				headers: getAuthHeaders(),
 			});
 			return res.data.destinations as Destination[];
 		},
@@ -58,7 +62,7 @@ export function useSearchDestinations(query: string) {
 			);
 			return res.data;
 		},
-		enabled: !!query, // only run if query is non-empty
+		enabled: !!query,
 	});
 
 	return { results, loading, error };
@@ -70,10 +74,8 @@ export function useCreateDestination() {
 
 	return useMutation({
 		mutationFn: async (newDest: NewDestination) => {
-			const token = localStorage.getItem("token");
-
 			const res = await axios.post(`${API_URL}/api/destinations`, newDest, {
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
+				headers: getAuthHeaders(),
 			});
 			return res.data.destination;
 		},
@@ -87,15 +89,17 @@ export function useUpdateDestination() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-			const token = localStorage.getItem("token");
-
+		mutationFn: async ({
+			id,
+			updates,
+		}: {
+			id: string;
+			updates: Partial<Destination>;
+		}) => {
 			const res = await axios.patch(
 				`${API_URL}/api/destinations/${id}`,
 				updates,
-				{
-					headers: token ? { Authorization: `Bearer ${token}` } : {},
-				}
+				{ headers: getAuthHeaders() }
 			);
 			return res.data.destination;
 		},
@@ -110,10 +114,8 @@ export function useDeleteDestination() {
 
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const token = localStorage.getItem("token");
-
 			const res = await axios.delete(`${API_URL}/api/destinations/${id}`, {
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
+				headers: getAuthHeaders(),
 			});
 			return res.data;
 		},

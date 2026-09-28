@@ -9,13 +9,11 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useCreateDestination } from "@/hooks/useDestinations";
-import AddDestinationPopup from "./AddDestinationPopup";
 import DestinationMarker from "./DestinationMarker";
 import type { Destination } from "@/types/destination";
 
 // Fix default Leaflet icon (otherwise broken in React)
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
 	iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
 	iconRetinaUrl:
@@ -31,11 +29,7 @@ interface MapProps {
 	searchLocation?: { lat: number; lng: number } | null;
 	selectedPos: { lat: number; lng: number } | null;
 	setSelectedPos: (pos: { lat: number; lng: number } | null) => void;
-	manualMode: boolean;
 	setManualMode: (val: boolean) => void;
-	manualLocation: { lat: number; lng: number } | null;
-	setManualLocation: (pos: { lat: number; lng: number } | null) => void;
-	popupOpen: boolean;
 	setPopupOpen: (val: boolean) => void;
 }
 
@@ -63,6 +57,20 @@ function FlyToDestination({ destination }: { destination?: Destination }) {
 	return null;
 }
 
+function LocationMarker({
+	onLocationSelect,
+}: {
+	onLocationSelect: (position: { lat: number; lng: number }) => void;
+}) {
+	useMapEvents({
+		click(event) {
+			onLocationSelect(event.latlng);
+		},
+	});
+
+	return null;
+}
+
 export default function Map({
 	destinations,
 	activeDestinationId,
@@ -71,26 +79,9 @@ export default function Map({
 	searchLocation,
 	selectedPos,
 	setSelectedPos,
-	manualMode,
 	setManualMode,
-	manualLocation,
-	setManualLocation,
-	popupOpen,
 	setPopupOpen,
 }: MapProps) {
-	const { mutate: createDestination } = useCreateDestination();
-
-	// Handle map clicks to drop new pin
-	function LocationMarker() {
-		useMapEvents({
-			click(e) {
-				setSelectedPos(e.latlng);
-				setManualMode(false);
-			},
-		});
-		return null;
-	}
-
 	return (
 		<div className="h-full w-full">
 			<MapContainer
@@ -110,30 +101,7 @@ export default function Map({
 						eventHandlers={{
 							click: () => setPopupOpen(true),
 						}}
-					>
-						<AddDestinationPopup
-							open={popupOpen}
-							onOpenChange={setPopupOpen}
-							mapCoordinates={selectedPos ?? searchLocation ?? null}
-							manualMode={manualMode}
-							manualLocation={manualLocation}
-							onSetManualMode={setManualMode}
-							onSetManualLocation={setManualLocation}
-							onSave={(data) =>
-								createDestination(
-									{ ...data },
-									{
-										onSuccess: () => {
-											// close popup and clear search marker
-											setPopupOpen(false);
-											// optionally reset searchLocation
-											// setSearchLocation(null);
-										},
-									}
-								)
-							}
-						/>
-					</Marker>
+					/>
 				)}
 				{/* New marker preview */}
 				{selectedPos && (
@@ -142,31 +110,13 @@ export default function Map({
 						eventHandlers={{
 							click: () => setPopupOpen(true),
 						}}
-					>
-						<AddDestinationPopup
-							open={popupOpen}
-							onOpenChange={setPopupOpen}
-							mapCoordinates={selectedPos ?? searchLocation ?? null}
-							manualMode={manualMode}
-							manualLocation={manualLocation}
-							onSetManualMode={setManualMode}
-							onSetManualLocation={setManualLocation}
-							onSave={(data) =>
-								createDestination(
-									{ ...data },
-									{
-										onSuccess: () => setSelectedPos(null),
-									}
-								)
-							}
-						/>
-					</Marker>
+					/>
 				)}
 				<TileLayer
 					attribution='&copy; <a href="http://osm.org/copyright">OSM</a>'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
-				<ZoomControl position="bottomright" /> {/* or "topright" */}
+				<ZoomControl position="bottomright" />
 				{/* Existing destinations */}
 				{destinations.map((dest) => (
 					<DestinationMarker
@@ -176,7 +126,12 @@ export default function Map({
 						onFocus={onFocus}
 					/>
 				))}
-				<LocationMarker />
+				<LocationMarker
+					onLocationSelect={(position) => {
+						setSelectedPos(position);
+						setManualMode(false);
+					}}
+				/>
 			</MapContainer>
 		</div>
 	);
