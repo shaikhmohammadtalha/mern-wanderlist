@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -67,17 +67,24 @@ export default function AddDestinationPopup({
 	const [tagInput, setTagInput] = useState("");
 	const [category, setCategory] = useState<Category>("None");
 	const [visited, setVisited] = useState(false);
-	const initialCoordinates = manualMode
-		? manualLocation
-		: mapCoordinates ?? manualLocation;
-	const [lat, setLat] = useState<number | "">(
-		() => initialCoordinates?.lat ?? ""
-	);
-	const [lng, setLng] = useState<number | "">(
-		() => initialCoordinates?.lng ?? ""
-	);
+	const [lat, setLat] = useState<number | "">("");
+	const [lng, setLng] = useState<number | "">("");
 	const [editingCoords, setEditingCoords] = useState(false);
 	const [error, setError] = useState("");
+
+	// Initialize or update coordinates when props change
+	useEffect(() => {
+		const initialCoordinates = manualMode
+			? manualLocation
+			: mapCoordinates ?? manualLocation;
+		if (initialCoordinates) {
+			setLat(initialCoordinates.lat);
+			setLng(initialCoordinates.lng);
+		} else {
+			setLat("");
+			setLng("");
+		}
+	}, [manualMode, manualLocation, mapCoordinates]);
 
 	const handleSave = () => {
 		setError("");

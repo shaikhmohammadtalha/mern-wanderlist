@@ -2,7 +2,8 @@
 
 ```
 ├── .claude
-│   └── settings.local.json
+│   ├── settings.local.json
+│   └── worktrees
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -72,6 +73,7 @@
 │   │   │   └── react.svg
 │   │   ├── components
 │   │   │   ├── AppNavbar.tsx
+│   │   │   ├── OnboardingTour.tsx
 │   │   │   ├── SeoHelmet.tsx
 │   │   │   ├── app
 │   │   │   │   └── (destinations)

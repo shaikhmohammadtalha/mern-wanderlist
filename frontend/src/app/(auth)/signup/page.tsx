@@ -33,6 +33,7 @@ export default function Signup() {
 		},
 		onSuccess: (data) => {
 			localStorage.setItem("token", data.token);
+			localStorage.setItem("wanderlist_new_user", "1");
 			setIsAuth(true);
 			navigate("/", { replace: true });
 		},

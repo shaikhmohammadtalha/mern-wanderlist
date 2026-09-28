@@ -50,12 +50,15 @@ export default function AppNavbar({
 					<div className="flex items-center gap-2">
 						<SidebarTrigger onClick={() => setSidebarOpen(!sidebarOpen)} />
 
-						<div className="flex items-center gap-2">
+						<NavLink
+							to="/"
+							className="flex items-center gap-2 hover:text-primary transition-colors"
+						>
 							<div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
 								<MapPin className="w-4 h-4" />
 							</div>
 							<span className="font-semibold">WanderList</span>
-						</div>
+						</NavLink>
 					</div>
 
 					{/* Right: Navigation links + Search */}

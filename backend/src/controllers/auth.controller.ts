@@ -2,8 +2,40 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import Destination from "../models/Destination";
 import { loginSchema, signupSchema } from "../utils/zod.schema";
 import { secrets } from "../config";
+
+const DEFAULT_DESTINATIONS = [
+	{
+		name: "Paris",
+		coordinates: { lat: 48.8566, lng: 2.3522 },
+		notes: "City of Light — art, food, and history.",
+		tags: ["europe", "city-break"],
+		category: "Cultural",
+	},
+	{
+		name: "Tokyo",
+		coordinates: { lat: 35.6762, lng: 139.6503 },
+		notes: "A perfect mix of neon and tradition.",
+		tags: ["asia", "foodie"],
+		category: "Food",
+	},
+	{
+		name: "New York City",
+		coordinates: { lat: 40.7128, lng: -74.006 },
+		notes: "The city that never sleeps.",
+		tags: ["usa", "skyscrapers"],
+		category: "Adventure",
+	},
+	{
+		name: "Sydney",
+		coordinates: { lat: -33.8688, lng: 151.2093 },
+		notes: "Harbour, beaches, and sunshine.",
+		tags: ["australia", "beach"],
+		category: "Nature",
+	},
+];
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -31,6 +63,14 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 		// Save new user
 		const user = new User({ firstName, lastName, email, passwordHash });
 		await user.save();
+
+		// Create sample destinations for new user
+		const destinationDocs = DEFAULT_DESTINATIONS.map((dest) => ({
+			userId: user._id,
+			...dest,
+			visited: false,
+		}));
+		await Destination.insertMany(destinationDocs);
 
 		// Create token
 		const token = jwt.sign({ id: user._id }, secrets.jwtSecret, {

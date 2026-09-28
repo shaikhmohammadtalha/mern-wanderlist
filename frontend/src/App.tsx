@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Map from "@/components/map/Map";
 import Login from "./app/(auth)/login/page";
 import Signup from "./app/(auth)/signup/page";
@@ -19,9 +19,18 @@ import {
 } from "@/hooks/useDestinations";
 import SearchResultsPanel from "@/components/search/SearchResultsPanel";
 import { useAuth } from "./context/AuthContext";
+import OnboardingTour from "./components/OnboardingTour";
 
 function App() {
 	const { isAuth } = useAuth();
+	const [tourOpen, setTourOpen] = useState(false);
+
+	useEffect(() => {
+		if (isAuth && localStorage.getItem("wanderlist_new_user") === "1") {
+			localStorage.removeItem("wanderlist_new_user");
+			setTourOpen(true);
+		}
+	}, [isAuth]);
 
 	const [activeDestinationId, setActiveDestinationId] = useState<string | null>(
 		null
@@ -75,6 +84,8 @@ function App() {
 			</Routes>
 		);
 	}
+
+	<OnboardingTour open={tourOpen} onOpenChange={setTourOpen} />
 
 	return (
 		<SidebarProvider>
