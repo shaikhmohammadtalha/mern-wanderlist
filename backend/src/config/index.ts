@@ -26,7 +26,7 @@ export const corsOptions = {
 
 		if (!origin) return callback(null, true); // allow server-to-server
 
-		const allowed = secrets.frontendUrl.some((o) => {
+		const allowed = secrets.frontendUrl.some((o: string) => {
 			if (o.includes("*")) {
 				// turn wildcard into regex
 				const regex = new RegExp("^" + o.replace("*", ".*") + "$");

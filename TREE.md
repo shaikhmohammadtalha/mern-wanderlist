@@ -1,6 +1,8 @@
 # Project Tree
 
 ```
+├── .claude
+│   └── settings.local.json
 ├── .env
 ├── .env.example
 ├── .gitignore

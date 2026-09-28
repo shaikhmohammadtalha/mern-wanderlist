@@ -8,6 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@types/cors':
+        specifier: ^2.8.19
+        version: 2.8.19
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
+      '@types/jsonwebtoken':
+        specifier: ^9.0.10
+        version: 9.0.10
+      '@types/node':
+        specifier: ^26.6.3
+        version: 26.6.3
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -30,18 +42,6 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@types/cors':
-        specifier: ^2.8.19
-        version: 2.8.19
-      '@types/express':
-        specifier: ^5.0.6
-        version: 5.0.6
-      '@types/jsonwebtoken':
-        specifier: ^9.0.10
-        version: 9.0.10
-      '@types/node':
-        specifier: ^26.6.3
-        version: 26.6.3
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
