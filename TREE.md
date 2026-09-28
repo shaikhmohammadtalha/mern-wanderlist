@@ -45,6 +45,7 @@
 │   │       └── zod.schema.ts
 │   └── tsconfig.json
 ├── frontend
+│   ├── .env
 │   ├── .env.example
 │   ├── .gitignore
 │   ├── README.md

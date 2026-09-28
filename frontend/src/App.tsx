@@ -62,7 +62,23 @@ function App() {
 		lat: number;
 		lng: number;
 	} | null>(null);
-	const [sidebarOpen, setSidebarOpen] = useState(true);
+	const SIDEBAR_DESKTOP_QUERY = "(min-width: 1280px)";
+
+	const [sidebarOpen, setSidebarOpen] = useState(() =>
+		typeof window === "undefined"
+			? true
+			: window.matchMedia(SIDEBAR_DESKTOP_QUERY).matches
+	);
+
+	useEffect(() => {
+		const mediaQuery = window.matchMedia(SIDEBAR_DESKTOP_QUERY);
+		const syncSidebarWithViewport = () => setSidebarOpen(mediaQuery.matches);
+
+		syncSidebarWithViewport();
+		mediaQuery.addEventListener("change", syncSidebarWithViewport);
+
+		return () => mediaQuery.removeEventListener("change", syncSidebarWithViewport);
+	}, []);
 	const [selectedPos, setSelectedPos] = useState<{
 		lat: number;
 		lng: number;
@@ -88,7 +104,10 @@ function App() {
 	<OnboardingTour open={tourOpen} onOpenChange={setTourOpen} />
 
 	return (
-		<SidebarProvider>
+		<SidebarProvider
+			open={sidebarOpen}
+			onOpenChange={setSidebarOpen}
+		>
 			<AppSidebar
 				destinations={destinations}
 				onDelete={handleDelete}

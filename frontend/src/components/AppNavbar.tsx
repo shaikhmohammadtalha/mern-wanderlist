@@ -1,20 +1,11 @@
-import {
-	NavigationMenu,
-	NavigationMenuItem,
-	NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import type { SearchResult } from "@/hooks/useDestinations";
-import { SidebarTrigger } from "./ui/sidebar";
-import SearchBar from "./searchbar/SearchBar";
+import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { Plus, User2, MapPin, Menu, List, TrendingUp } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { MapPin, Plus, User2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { SearchResult } from "@/hooks/useDestinations";
 import { useAuth } from "@/context/AuthContext";
+import SearchBar from "./searchbar/SearchBar";
 
 interface AppNavbarProps {
 	onSearch: (query: string) => void;
@@ -26,6 +17,24 @@ interface AppNavbarProps {
 	sidebarOpen: boolean;
 	setSidebarOpen: (open: boolean) => void;
 	onAddDestination?: () => void;
+}
+
+function NavItem({ to, children, onClick }: { to: string; children: ReactNode; onClick?: () => void }) {
+	return (
+		<NavLink
+			to={to}
+			onClick={onClick}
+			className={({ isActive }) =>
+				`inline-flex items-center whitespace-nowrap px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+					isActive
+						? "border-b-2 border-primary text-primary"
+						: "border-b-2 border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
+				}`
+			}
+		>
+			{children}
+		</NavLink>
+	);
 }
 
 export default function AppNavbar({
@@ -42,170 +51,126 @@ export default function AppNavbar({
 	const username = localStorage.getItem("username") || "User";
 	const { setIsAuth } = useAuth();
 
-	return (
-		<header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/90 shadow-sm">
-			<NavigationMenu className="w-full px-4 h-16">
-				<NavigationMenuList className="w-full h-full flex items-center justify-between">
-					{/* Left: Brand + Sidebar toggle */}
-					<div className="flex items-center gap-2">
-						<SidebarTrigger onClick={() => setSidebarOpen(!sidebarOpen)} />
+	const handleSignOut = () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("username");
+		setIsAuth?.(false);
+	};
 
+	return (
+		<header className="sticky top-0 z-50 w-full min-w-0 overflow-x-clip border-b bg-white/90 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-white/90">
+			{/* Full desktop navbar. xl = 1280px, so the crowded middle widths use the compact layout below. */}
+			<div className="hidden min-w-0 items-center gap-3 px-4 py-2 xl:flex xl:h-16 xl:py-0">
+				{/* Left */}
+				<div className="flex shrink-0 items-center gap-2">
+					<SidebarTrigger
+						className="shrink-0"
+						onClick={() => setSidebarOpen(!sidebarOpen)}
+					/>
+
+					{!sidebarOpen && (
 						<NavLink
 							to="/"
-							className="flex items-center gap-2 hover:text-primary transition-colors"
+							className="flex shrink-0 items-center gap-2 transition-colors hover:text-primary"
 						>
-							<div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
-								<MapPin className="w-4 h-4" />
+							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground">
+								<MapPin className="h-4 w-4" />
 							</div>
-							<span className="font-semibold hidden sm:block">WanderList</span>
+							<span className="whitespace-nowrap font-semibold">WanderList</span>
 						</NavLink>
+					)}
+				</div>
+
+				{/* Center navigation */}
+				<nav className="flex shrink-0 items-center gap-1" aria-label="Primary navigation">
+					<NavItem to="/">Map</NavItem>
+					<NavItem to="/destinations" onClick={() => setSidebarOpen(false)}>
+						All Destinations
+					</NavItem>
+					<NavItem to="/stats">Stats</NavItem>
+				</nav>
+
+				{/* Right side. Search is the only flexible element. */}
+				<div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+					<button
+						type="button"
+						onClick={onAddDestination}
+						className="flex shrink-0 items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+					>
+						<Plus className="h-4 w-4" />
+						<span className="whitespace-nowrap">Add Destination</span>
+					</button>
+
+					<div className="min-w-0 flex-1 max-w-[360px]">
+						<SearchBar
+							onSearch={onSearch}
+							onDebounce={onDebounce}
+							results={results}
+							loading={loading}
+							error={error}
+							onResultClick={onResultClick}
+						/>
 					</div>
 
-					{/* Mobile: Navigation dropdown */}
-					<div className="lg:hidden flex items-center gap-2">
+					<div className="relative shrink-0">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
-									<Menu className="w-5 h-5" /> Menu
+								<button className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap hover:bg-primary/10 hover:text-primary">
+									<User2 className="h-5 w-5" />
+									{username}
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="bottom" align="end" className="w-48 rounded-md border p-2 shadow-md">
-								<DropdownMenuItem asChild>
-									<NavLink
-										to="/"
-										className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
-									>
-											<MapPin className="w-4 h-4" /> Map
-									</NavLink>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-										<NavLink
-											to="/destinations"
-											className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
-									>
-												<List className="w-4 h-4" /> All Destinations
-									</NavLink>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-										<NavLink
-											to="/stats"
-											className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-primary/10"
-									>
-												<TrendingUp className="w-4 h-4" /> Stats
-									</NavLink>
-								</DropdownMenuItem>
+							<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
+								<DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-
-						{/* Search on mobile (compact) */}
-							<div className="lg:hidden">
-								<SearchBar
-									onSearch={onSearch}
-									onDebounce={onDebounce}
-									results={results}
-									loading={loading}
-									error={error}
-									onResultClick={onResultClick}
-								/>
-							</div>
 					</div>
+				</div>
+			</div>
 
-					{/* Desktop: Navigation links + Search */}
-					<div className="hidden lg:flex flex-wrap items-center gap-4 ml-2">
-						<NavigationMenuItem>
-							<NavLink
-								to="/"
-								className={({ isActive }) =>
-									`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-										isActive
-											? "border-b-2 border-primary text-primary"
-											: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
-									}`
-								}
-							>
-								Map
-								</NavLink>
-							</NavigationMenuItem>
+			{/* Compact tablet/mobile navbar. Navigation lives in the sidebar drawer. */}
+			<div className="flex w-full min-w-0 flex-col gap-2 px-3 py-2 xl:hidden">
+				<div className="flex min-w-0 w-full items-center gap-2">
+					<SidebarTrigger
+						className="shrink-0"
+						onClick={() => setSidebarOpen(!sidebarOpen)}
+					/>
 
-							<NavigationMenuItem>
-								<NavLink
-									to="/destinations"
-									onClick={() => setSidebarOpen(false)}
-									className={({ isActive }) =>
-										`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-											isActive
-												? "border-b-2 border-primary text-primary"
-												: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
-										}`
-									}
-								>
-									All Destinations
-								</NavLink>
-							</NavigationMenuItem>
+					<NavLink to="/" className="flex min-w-0 items-center gap-2">
+						<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground">
+							<MapPin className="h-4 w-4" />
+						</div>
+						<span className="truncate font-semibold">WanderList</span>
+					</NavLink>
 
-							<NavigationMenuItem>
-								<NavLink
-									to="/stats"
-									className={({ isActive }) =>
-										`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-											isActive
-												? "border-b-2 border-primary text-primary"
-												: "border-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10"
-										}`
-									}
-								>
-									Stats
-								</NavLink>
-							</NavigationMenuItem>
-
-							{/* Add Destination button */}
-							<NavigationMenuItem>
+					<div className="relative ml-auto shrink-0">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
 								<button
-									onClick={onAddDestination}
-									className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+									aria-label={`Open ${username} profile menu`}
+									className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-primary/10 hover:text-primary"
 								>
-									<Plus className="w-4 h-4" />
-									Add Destination
+									<User2 className="h-5 w-5" />
 								</button>
-							</NavigationMenuItem>
-
-							<NavigationMenuItem>
-								<SearchBar
-									onSearch={onSearch}
-									onDebounce={onDebounce}
-									results={results}
-									loading={loading}
-									error={error}
-									onResultClick={onResultClick}
-								/>
-							</NavigationMenuItem>
-
-							{/* User dropdown */}
-							<div className="relative">
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/10 hover:text-primary">
-											<User2 className="w-5 h-5" /> {/* user icon */}
-											{username}
-										</button>
-									</DropdownMenuTrigger>
-
-									<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
-										<DropdownMenuItem
-										onClick={() => {
-												localStorage.removeItem("token");
-												localStorage.removeItem("username");
-												setIsAuth?.(false);
-											}}
-										>
-											Sign out
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-md border p-2 shadow-md">
+								<DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
-				</NavigationMenuList>
-			</NavigationMenu>
+				</div>
+
+				<div className="w-full min-w-0">
+					<SearchBar
+						onSearch={onSearch}
+						onDebounce={onDebounce}
+						results={results}
+						loading={loading}
+						error={error}
+						onResultClick={onResultClick}
+					/>
+				</div>
+			</div>
 		</header>
 	);
 }

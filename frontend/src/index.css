@@ -204,3 +204,18 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* ─────────────────────────────────────
+   Responsive layout helpers
+   ───────────────────────────────────── */
+@layer utilities {
+  /* Prevent the sticky navbar from ever causing horizontal scrolling. */
+  .navbar-overflow-clip {
+    overflow-x: clip;
+  }
+
+  /* Ensure the mobile menu button is never hidden by overflow rules. */
+  .menu-button-keep-visible {
+    flex-shrink: 0;
+  }
+}

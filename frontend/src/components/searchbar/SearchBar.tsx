@@ -20,41 +20,37 @@ export default function SearchBar({
 	error,
 	onResultClick,
 }: SearchBarProps) {
-	const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const form = e.currentTarget;
-		const input = form.search as HTMLInputElement;
-		if (input.value.trim()) {
-			onSearch(input.value.trim());
-			input.value = "";
-		}
-	};
-
 	const [query, setQuery] = useState("");
 	const [open, setOpen] = useState(false);
 	const [highlighted, setHighlighted] = useState(-1);
-
 	const formRef = useRef<HTMLFormElement>(null);
 
-	// debounce
+	const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const form = e.currentTarget;
+		const input = form.elements.namedItem("search") as HTMLInputElement | null;
+
+		if (input?.value.trim()) {
+			onSearch(input.value.trim());
+			setOpen(false);
+		}
+	};
+
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			if (query.trim()) {
-				onDebounce(query.trim());
-			} else {
-				onDebounce("");
-			}
+			onDebounce(query.trim());
 		}, 500);
+
 		return () => clearTimeout(timeout);
 	}, [query, onDebounce]);
 
-	// close on outside click
 	useEffect(() => {
 		function handleClickOutside(e: MouseEvent) {
 			if (formRef.current && !formRef.current.contains(e.target as Node)) {
 				setOpen(false);
 			}
 		}
+
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
@@ -63,93 +59,87 @@ export default function SearchBar({
 		<form
 			ref={formRef}
 			onSubmit={handleSearch}
-			className="relative flex items-center gap-2"
+			className="relative flex w-full min-w-0 items-center gap-2"
 		>
-			<Input
-				id="search"
-				name="search"
-				type="text"
-				value={query}
-				onChange={(e) => {
-					setQuery(e.target.value);
-					setHighlighted(-1);
-					setOpen(true);
-				}}
-				onFocus={() => {
-					if (query.trim() && results.length > 0) {
+			<div className="relative min-w-0 flex-1">
+				<Input
+					id="search"
+					name="search"
+					type="text"
+					value={query}
+					onChange={(e) => {
+						setQuery(e.target.value);
+						setHighlighted(-1);
 						setOpen(true);
-					}
-				}}
-				onKeyDown={(e) => {
-					if (!open || results.length === 0) return;
-
-					if (e.key === "ArrowDown") {
-						e.preventDefault();
-						setHighlighted((prev) => (prev + 1) % results.length);
-					} else if (e.key === "ArrowUp") {
-						e.preventDefault();
-						setHighlighted((prev) =>
-							prev <= 0 ? results.length - 1 : prev - 1
-						);
-					} else if (
-						(e.key === "ArrowRight" || e.key === "Tab") &&
-						highlighted >= 0
-					) {
-						e.preventDefault();
-						const r = results[highlighted];
-						setQuery(r.display_name);
-					} else if (e.key === "Enter" && highlighted >= 0) {
-						e.preventDefault();
-						const r = results[highlighted];
-						onResultClick(r.lat, r.lon);
-						setOpen(false);
-					}
-				}}
-				placeholder="Search location..."
-				className="w-72 md:w-96 lg:w-[500px] rounded-xl border border-input bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-			/>
-
-			{query && (
-				<button
-					type="button"
-					onClick={() => {
-						setQuery("");
-						onDebounce("");
-						setOpen(false);
 					}}
-					className="absolute right-10 text-muted-foreground hover:text-foreground/70"
-				>
-					×
-				</button>
-			)}
+					onFocus={() => {
+						if (query.trim() && results.length > 0) setOpen(true);
+					}}
+					onKeyDown={(e) => {
+						if (!open || results.length === 0) return;
 
-			<Button type="submit" size="sm" className="px-3">
+						if (e.key === "ArrowDown") {
+							e.preventDefault();
+							setHighlighted((prev) => (prev + 1) % results.length);
+						} else if (e.key === "ArrowUp") {
+							e.preventDefault();
+							setHighlighted((prev) =>
+								prev <= 0 ? results.length - 1 : prev - 1
+							);
+						} else if ((e.key === "ArrowRight" || e.key === "Tab") && highlighted >= 0) {
+							e.preventDefault();
+							setQuery(results[highlighted].display_name);
+						} else if (e.key === "Enter" && highlighted >= 0) {
+							e.preventDefault();
+							const result = results[highlighted];
+							onResultClick(result.lat, result.lon);
+							setOpen(false);
+						}
+					}}
+					placeholder="Search location..."
+					className="w-full min-w-0 rounded-xl border border-input bg-background/90 pr-9 backdrop-blur supports-[backdrop-filter]:bg-background/60 placeholder:text-muted-foreground transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+				/>
+
+				{query && (
+					<button
+						type="button"
+						aria-label="Clear search"
+						onClick={() => {
+							setQuery("");
+							setHighlighted(-1);
+							onDebounce("");
+							setOpen(false);
+						}}
+						className="absolute right-2 top-1/2 -translate-y-1/2 text-lg leading-none text-muted-foreground hover:text-foreground/70"
+					>
+						×
+					</button>
+				)}
+			</div>
+
+			<Button type="submit" size="sm" className="shrink-0 px-3">
 				Search
 			</Button>
 
-			{/* Dropdown results */}
 			{open && (loading || error || results.length > 0) && (
-				<div className="absolute top-full left-0 mt-2 w-full rounded-xl border border-border bg-card shadow-lg z-50">
-					{loading && (
-						<p className="text-xs p-2 text-muted-foreground">Searching…</p>
-					)}
-					{error && <p className="text-xs p-2 text-destructive">{error.message}</p>}
+				<div className="absolute left-0 top-full z-[60] mt-2 w-full rounded-xl border border-border bg-card shadow-lg">
+					{loading && <p className="p-2 text-xs text-muted-foreground">Searching…</p>}
+					{error && <p className="p-2 text-xs text-destructive">{error.message}</p>}
+
 					<ul className="divide-y divide-border">
-						{results.slice(0, 3).map((r, idx) => (
+						{results.slice(0, 3).map((result, idx) => (
 							<li
-								key={idx}
-								className={`px-3 py-2 cursor-pointer text-sm ${
-									highlighted === idx
-									? "bg-accent"
-									: "hover:bg-accent/50"
+								key={`${result.lat}-${result.lon}-${idx}`}
+								className={`cursor-pointer px-3 py-2 text-sm ${
+									highlighted === idx ? "bg-accent" : "hover:bg-accent/50"
 								}`}
 								onMouseEnter={() => setHighlighted(idx)}
 								onClick={() => {
-									onResultClick(r.lat, r.lon);
+									onResultClick(result.lat, result.lon);
 									setOpen(false);
 								}}
 							>
-								{r.display_name}
+								{result.display_name}
 							</li>
 						))}
 					</ul>
