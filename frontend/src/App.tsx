@@ -1,221 +1,192 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Map from "@/components/map/Map";
 import Login from "./app/(auth)/login/page";
 import Signup from "./app/(auth)/signup/page";
+import DestinationsPage from "./app/destination/Destination";
 import type { Destination } from "@/types/destination";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AppSidebar from "./components/sidebar/AppSidebar";
 import AppNavbar from "./components/AppNavbar";
-import { Routes, Route, Navigate } from "react-router-dom";
+import SearchBar from "./components/searchbar/SearchBar";
 import StatsPage from "./components/stats/StatsPage";
-import DestinationsPage from "./app/destination/Destination";
 import AddDestinationPopup from "./components/map/AddDestinationPopup";
-import {
-	useCreateDestination,
-	useUpdateDestination,
-	useDeleteDestination,
-	useDestinations,
-	useSearchDestinations,
-} from "@/hooks/useDestinations";
 import SearchResultsPanel from "@/components/search/SearchResultsPanel";
-import { useAuth } from "./context/AuthContext";
 import OnboardingTour from "./components/OnboardingTour";
+import {
+  useCreateDestination,
+  useUpdateDestination,
+  useDeleteDestination,
+  useDestinations,
+  useSearchDestinations,
+} from "@/hooks/useDestinations";
+import { useAuth } from "./context/AuthContext";
+
+type LatLng = { lat: number; lng: number };
+
+/** Everything behind login. Split out so data hooks don't fire for logged-out users. */
+function AuthedApp() {
+  const [tourOpen, setTourOpen] = useState(
+    () => localStorage.getItem("wanderlist_new_user") === "1",
+  );
+  useEffect(() => {
+    localStorage.removeItem("wanderlist_new_user");
+  }, []);
+
+  const [activeDestinationId, setActiveDestinationId] = useState<string | null>(
+    null,
+  );
+
+  const { destinations } = useDestinations();
+  const { mutate: deleteDestination } = useDeleteDestination();
+  const { mutate: updateDestination } = useUpdateDestination();
+  const { mutate: createDestination } = useCreateDestination();
+
+  const handleDelete = (id: string) => deleteDestination(id);
+  const handleEdit = (id: string, updates: Partial<Destination>) =>
+    updateDestination({ id, updates });
+
+  // Search: live suggestions (debounced) vs. submitted results panel
+  const [suggestQuery, setSuggestQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const suggestions = useSearchDestinations(suggestQuery);
+  const submitted = useSearchDestinations(submittedQuery);
+  const [searchLocation, setSearchLocation] = useState<LatLng | null>(null);
+
+  const goToResult = (lat: string, lon: string) =>
+    setSearchLocation({ lat: parseFloat(lat), lng: parseFloat(lon) });
+
+  // Add-destination popup
+  const [selectedPos, setSelectedPos] = useState<LatLng | null>(null);
+  const [manualMode, setManualMode] = useState(false);
+  const [manualLocation, setManualLocation] = useState<LatLng | null>(null);
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  const openAddDestination = () => {
+    setSelectedPos(null);
+    setManualMode(true);
+    setManualLocation({ lat: 0, lng: 0 });
+    setPopupOpen(true);
+  };
+
+  const closeAddDestination = () => {
+    setPopupOpen(false);
+    setManualLocation(null);
+    setSelectedPos(null);
+    setManualMode(false);
+  };
+
+  return (
+    <SidebarProvider>
+      <AppSidebar
+        destinations={destinations}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
+        onFocus={setActiveDestinationId}
+        onAddDestination={openAddDestination}
+      />
+
+      <SidebarInset className="h-dvh min-h-0 overflow-hidden">
+        <AppNavbar
+          onAddDestination={openAddDestination}
+          search={
+            <SearchBar
+              onSearch={setSubmittedQuery}
+              onDebounce={setSuggestQuery}
+              results={suggestions.results}
+              loading={suggestions.loading}
+              error={suggestions.error}
+              onResultClick={goToResult}
+            />
+          }
+        />
+
+        <main className="relative z-0 min-h-0 flex-1 overflow-y-auto">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <SearchResultsPanel
+                    loading={submitted.loading}
+                    error={submitted.error}
+                    results={submitted.results}
+                    onSelect={(lat, lng) => setSearchLocation({ lat, lng })}
+                    onClose={() => {
+                      setSubmittedQuery("");
+                      setSearchLocation(null);
+                    }}
+                  />
+                  <Map
+                    destinations={destinations}
+                    activeDestinationId={activeDestinationId}
+                    onDelete={handleDelete}
+                    onFocus={setActiveDestinationId}
+                    searchLocation={searchLocation}
+                    selectedPos={selectedPos}
+                    setSelectedPos={setSelectedPos}
+                    setManualMode={setManualMode}
+                    setPopupOpen={setPopupOpen}
+                  />
+                </>
+              }
+            />
+            <Route
+              path="/stats"
+              element={<StatsPage destinations={destinations} />}
+            />
+            <Route
+              path="/destinations"
+              element={
+                <DestinationsPage
+                  destinations={destinations}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  onFocus={setActiveDestinationId}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+
+          {popupOpen && (
+            <AddDestinationPopup
+              open={popupOpen}
+              onOpenChange={setPopupOpen}
+              mapCoordinates={selectedPos ?? searchLocation ?? null}
+              manualMode={manualMode}
+              manualLocation={manualLocation}
+              onSetManualLocation={setManualLocation}
+              onSave={(data) =>
+                createDestination(
+                  { ...data },
+                  { onSuccess: closeAddDestination },
+                )
+              }
+            />
+          )}
+        </main>
+      </SidebarInset>
+
+      <OnboardingTour open={tourOpen} onOpenChange={setTourOpen} />
+    </SidebarProvider>
+  );
+}
 
 function App() {
-	const { isAuth } = useAuth();
-	const [tourOpen, setTourOpen] = useState(false);
+  const { isAuth } = useAuth();
 
-	useEffect(() => {
-		if (isAuth && localStorage.getItem("wanderlist_new_user") === "1") {
-			localStorage.removeItem("wanderlist_new_user");
-			setTourOpen(true);
-		}
-	}, [isAuth]);
+  if (!isAuth) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
 
-	const [activeDestinationId, setActiveDestinationId] = useState<string | null>(
-		null
-	);
-
-	const { destinations } = useDestinations();
-	const { mutate: deleteDestination } = useDeleteDestination();
-	const { mutate: updateDestination } = useUpdateDestination();
-	const { mutate: createDestination } = useCreateDestination();
-
-	const handleDelete = (id: string) => deleteDestination(id);
-	const handleEdit = (id: string, updates: Partial<Destination>) =>
-		updateDestination({ id, updates });
-
-	const [debouncedQuery, setDebouncedQuery] = useState("");
-	const [submittedQuery, setSubmittedQuery] = useState("");
-	const {
-		results: suggestionResults,
-		loading: suggestionLoading,
-		error: suggestionError,
-	} = useSearchDestinations(debouncedQuery);
-	const {
-		results: searchResults,
-		loading,
-		error,
-	} = useSearchDestinations(submittedQuery);
-
-	const [searchLocation, setSearchLocation] = useState<{
-		lat: number;
-		lng: number;
-	} | null>(null);
-	const SIDEBAR_DESKTOP_QUERY = "(min-width: 1280px)";
-
-	const [sidebarOpen, setSidebarOpen] = useState(() =>
-		typeof window === "undefined"
-			? true
-			: window.matchMedia(SIDEBAR_DESKTOP_QUERY).matches
-	);
-
-	useEffect(() => {
-		const mediaQuery = window.matchMedia(SIDEBAR_DESKTOP_QUERY);
-		const syncSidebarWithViewport = () => setSidebarOpen(mediaQuery.matches);
-
-		syncSidebarWithViewport();
-		mediaQuery.addEventListener("change", syncSidebarWithViewport);
-
-		return () => mediaQuery.removeEventListener("change", syncSidebarWithViewport);
-	}, []);
-	const [selectedPos, setSelectedPos] = useState<{
-		lat: number;
-		lng: number;
-	} | null>(null);
-	const [manualMode, setManualMode] = useState(false);
-	const [manualLocation, setManualLocation] = useState<{
-		lat: number;
-		lng: number;
-	} | null>(null);
-	const [popupOpen, setPopupOpen] = useState(false);
-
-	if (!isAuth) {
-		// user not authenticated → only show login/signup pages
-		return (
-			<Routes>
-				<Route path="/login" element={<Login />} />
-				<Route path="/signup" element={<Signup />} />
-				<Route path="*" element={<Navigate to="/login" replace />} />
-			</Routes>
-		);
-	}
-
-	<OnboardingTour open={tourOpen} onOpenChange={setTourOpen} />
-
-	return (
-		<SidebarProvider
-			open={sidebarOpen}
-			onOpenChange={setSidebarOpen}
-		>
-			<AppSidebar
-				destinations={destinations}
-				onDelete={handleDelete}
-				onEdit={handleEdit}
-				onFocus={(id) => setActiveDestinationId(id)}
-				onAddDestination={() => {
-					setSelectedPos(null);
-					setManualMode(true);
-					setManualLocation({ lat: 0, lng: 0 });
-					setPopupOpen(true);
-				}}
-			/>
-
-			<SidebarInset className="flex flex-col h-screen overflow-hidden">
-				<AppNavbar
-					onSearch={(query) => setSubmittedQuery(query)}
-					onDebounce={(query) => setDebouncedQuery(query)}
-					results={suggestionResults}
-					loading={suggestionLoading}
-					error={suggestionError}
-					onResultClick={(lat, lon) =>
-						setSearchLocation({ lat: parseFloat(lat), lng: parseFloat(lon) })
-					}
-					sidebarOpen={sidebarOpen}
-					setSidebarOpen={setSidebarOpen}
-					onAddDestination={() => {
-						setSelectedPos(null);
-						setManualMode(true);
-						setManualLocation({ lat: 0, lng: 0 });
-						setPopupOpen(true);
-					}}
-				/>
-
-				<main className="flex-1 relative z-0 overflow-y-auto">
-					<Routes>
-						<Route
-							path="/"
-							element={
-								<>
-									<SearchResultsPanel
-										loading={loading}
-										error={error}
-										results={searchResults}
-										onSelect={(lat, lng) => setSearchLocation({ lat, lng })}
-										onClose={() => {
-											setSubmittedQuery("");
-											setSearchLocation(null);
-										}}
-									/>
-									<Map
-										destinations={destinations}
-										activeDestinationId={activeDestinationId}
-										onDelete={handleDelete}
-										onFocus={(id) => setActiveDestinationId(id)}
-										searchLocation={searchLocation}
-										selectedPos={selectedPos}
-										setSelectedPos={setSelectedPos}
-										setManualMode={setManualMode}
-										setPopupOpen={setPopupOpen}
-									/>
-								</>
-							}
-						/>
-						<Route
-							path="/stats"
-							element={<StatsPage destinations={destinations} />}
-						/>
-						<Route
-							path="/destinations"
-							element={
-								<DestinationsPage
-									destinations={destinations}
-									onDelete={handleDelete}
-									onEdit={handleEdit}
-									onFocus={(id) => setActiveDestinationId(id)}
-								/>
-							}
-						/>
-						<Route path="*" element={<Navigate to="/" replace />} />
-					</Routes>
-
-					{popupOpen && (
-						<AddDestinationPopup
-							open={popupOpen}
-							onOpenChange={setPopupOpen}
-							mapCoordinates={selectedPos ?? searchLocation ?? null}
-							manualMode={manualMode}
-							manualLocation={manualLocation}
-							onSetManualLocation={setManualLocation}
-							onSave={(data) =>
-								createDestination(
-									{ ...data },
-									{
-										onSuccess: () => {
-											setPopupOpen(false);
-											setManualLocation(null);
-											setSelectedPos(null);
-											setManualMode(false);
-										},
-									}
-								)
-							}
-						/>
-					)}
-				</main>
-			</SidebarInset>
-		</SidebarProvider>
-	);
+  return <AuthedApp />;
 }
 
 export default App;

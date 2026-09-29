@@ -74,6 +74,8 @@
 │   │   │   └── react.svg
 │   │   ├── components
 │   │   │   ├── AppNavbar.tsx
+│   │   │   ├── Logo.tsx
+│   │   │   ├── NavLinks.tsx
 │   │   │   ├── OnboardingTour.tsx
 │   │   │   ├── SeoHelmet.tsx
 │   │   │   ├── app
@@ -93,8 +95,7 @@
 │   │   │   │   └── SearchBar.tsx
 │   │   │   ├── sidebar
 │   │   │   │   ├── AppSidebar.tsx
-│   │   │   │   ├── AppSidebarContent.tsx
-│   │   │   │   └── AppSidebarFooter.tsx
+│   │   │   │   └── AppSidebarContent.tsx
 │   │   │   ├── stats
 │   │   │   │   └── StatsPage.tsx
 │   │   │   └── ui

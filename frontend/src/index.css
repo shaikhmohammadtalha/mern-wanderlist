@@ -14,14 +14,10 @@
   font-size: 1.25rem;
   padding: 8px;
   color: #475569;
-}
-.leaflet-popup-close-button {
   top: 6px !important;
   right: 6px !important;
 }
-.leaflet-popup-close-button:hover {
-  color: #0f172a;
-}
+.leaflet-popup-close-button:hover { color: #0f172a; }
 
 /* ─────────────────────────────────────
    Custom scrollbar — subtle & modern

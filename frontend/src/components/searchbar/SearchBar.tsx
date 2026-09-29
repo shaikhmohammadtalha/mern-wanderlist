@@ -3,148 +3,166 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { SearchResult } from "@/hooks/useDestinations";
 
+const MAX_SUGGESTIONS = 3;
+const DEBOUNCE_MS = 500;
+
 interface SearchBarProps {
-	onSearch: (query: string) => void;
-	onDebounce: (query: string) => void;
-	results: SearchResult[];
-	loading: boolean;
-	error: Error | null;
-	onResultClick: (lat: string, lon: string) => void;
+  onSearch: (query: string) => void;
+  /** Should be a stable function (e.g. a useState setter) or the debounce timer resets every render */
+  onDebounce: (query: string) => void;
+  results: SearchResult[];
+  loading: boolean;
+  error: Error | null;
+  onResultClick: (lat: string, lon: string) => void;
 }
 
 export default function SearchBar({
-	onSearch,
-	onDebounce,
-	results,
-	loading,
-	error,
-	onResultClick,
+  onSearch,
+  onDebounce,
+  results,
+  loading,
+  error,
+  onResultClick,
 }: SearchBarProps) {
-	const [query, setQuery] = useState("");
-	const [open, setOpen] = useState(false);
-	const [highlighted, setHighlighted] = useState(-1);
-	const formRef = useRef<HTMLFormElement>(null);
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [highlighted, setHighlighted] = useState(-1);
+  const formRef = useRef<HTMLFormElement>(null);
 
-	const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const form = e.currentTarget;
-		const input = form.elements.namedItem("search") as HTMLInputElement | null;
+  // Keyboard nav and rendering both use this list, so they can't disagree
+  const suggestions = results.slice(0, MAX_SUGGESTIONS);
+  const listVisible = open && suggestions.length > 0;
 
-		if (input?.value.trim()) {
-			onSearch(input.value.trim());
-			setOpen(false);
-		}
-	};
+  const selectResult = (result: SearchResult) => {
+    onResultClick(result.lat, result.lon);
+    setOpen(false);
+  };
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			onDebounce(query.trim());
-		}, 500);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    onSearch(trimmed);
+    setOpen(false);
+  };
 
-		return () => clearTimeout(timeout);
-	}, [query, onDebounce]);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+    if (!listVisible) return;
 
-	useEffect(() => {
-		function handleClickOutside(e: MouseEvent) {
-			if (formRef.current && !formRef.current.contains(e.target as Node)) {
-				setOpen(false);
-			}
-		}
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlighted((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlighted((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1));
+    } else if (
+      (e.key === "ArrowRight" || e.key === "Tab") &&
+      highlighted >= 0
+    ) {
+      e.preventDefault();
+      setQuery(suggestions[highlighted].display_name);
+    } else if (e.key === "Enter" && highlighted >= 0) {
+      e.preventDefault();
+      selectResult(suggestions[highlighted]);
+    }
+  };
 
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, []);
+  const handleClear = () => {
+    setQuery("");
+    setHighlighted(-1);
+    onDebounce("");
+    setOpen(false);
+  };
 
-	return (
-		<form
-			ref={formRef}
-			onSubmit={handleSearch}
-			className="relative flex w-full min-w-0 items-center gap-2"
-		>
-			<div className="relative min-w-0 flex-1">
-				<Input
-					id="search"
-					name="search"
-					type="text"
-					value={query}
-					onChange={(e) => {
-						setQuery(e.target.value);
-						setHighlighted(-1);
-						setOpen(true);
-					}}
-					onFocus={() => {
-						if (query.trim() && results.length > 0) setOpen(true);
-					}}
-					onKeyDown={(e) => {
-						if (!open || results.length === 0) return;
+  useEffect(() => {
+    const timeout = setTimeout(() => onDebounce(query.trim()), DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [query, onDebounce]);
 
-						if (e.key === "ArrowDown") {
-							e.preventDefault();
-							setHighlighted((prev) => (prev + 1) % results.length);
-						} else if (e.key === "ArrowUp") {
-							e.preventDefault();
-							setHighlighted((prev) =>
-								prev <= 0 ? results.length - 1 : prev - 1
-							);
-						} else if ((e.key === "ArrowRight" || e.key === "Tab") && highlighted >= 0) {
-							e.preventDefault();
-							setQuery(results[highlighted].display_name);
-						} else if (e.key === "Enter" && highlighted >= 0) {
-							e.preventDefault();
-							const result = results[highlighted];
-							onResultClick(result.lat, result.lon);
-							setOpen(false);
-						}
-					}}
-					placeholder="Search location..."
-					className="w-full min-w-0 rounded-xl border border-input bg-background/90 pr-9 backdrop-blur supports-[backdrop-filter]:bg-background/60 placeholder:text-muted-foreground transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
-				/>
+  useEffect(() => {
+    const handleClickOutside = (e: PointerEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () =>
+      document.removeEventListener("pointerdown", handleClickOutside);
+  }, []);
 
-				{query && (
-					<button
-						type="button"
-						aria-label="Clear search"
-						onClick={() => {
-							setQuery("");
-							setHighlighted(-1);
-							onDebounce("");
-							setOpen(false);
-						}}
-						className="absolute right-2 top-1/2 -translate-y-1/2 text-lg leading-none text-muted-foreground hover:text-foreground/70"
-					>
-						×
-					</button>
-				)}
-			</div>
+  return (
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="relative flex w-full min-w-0 items-center gap-2"
+    >
+      <div className="relative min-w-0 flex-1">
+        <Input
+          name="search"
+          type="text"
+          autoComplete="off"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setHighlighted(-1);
+            setOpen(true);
+          }}
+          onFocus={() => {
+            if (query.trim() && results.length > 0) setOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder="Search location..."
+          aria-label="Search location"
+          className="w-full min-w-0 rounded-xl border border-input bg-background/90 pr-9 backdrop-blur placeholder:text-muted-foreground transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+        />
 
-			<Button type="submit" size="sm" className="shrink-0 px-3">
-				Search
-			</Button>
+        {query && (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={handleClear}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-lg leading-none text-muted-foreground hover:text-foreground/70"
+          >
+            ×
+          </button>
+        )}
+      </div>
 
-			{open && (loading || error || results.length > 0) && (
-				<div className="absolute left-0 top-full z-[60] mt-2 w-full rounded-xl border border-border bg-card shadow-lg">
-					{loading && <p className="p-2 text-xs text-muted-foreground">Searching…</p>}
-					{error && <p className="p-2 text-xs text-destructive">{error.message}</p>}
+      <Button type="submit" size="sm" className="shrink-0 px-3">
+        Search
+      </Button>
 
-					<ul className="divide-y divide-border">
-						{results.slice(0, 3).map((result, idx) => (
-							<li
-								key={`${result.lat}-${result.lon}-${idx}`}
-								className={`cursor-pointer px-3 py-2 text-sm ${
-									highlighted === idx ? "bg-accent" : "hover:bg-accent/50"
-								}`}
-								onMouseEnter={() => setHighlighted(idx)}
-								onClick={() => {
-									onResultClick(result.lat, result.lon);
-									setOpen(false);
-								}}
-							>
-								{result.display_name}
-							</li>
-						))}
-					</ul>
-				</div>
-			)}
-		</form>
-	);
+      {open && (loading || error || suggestions.length > 0) && (
+        <div className="absolute left-0 top-full z-[60] mt-2 w-full rounded-xl border border-border bg-card shadow-lg">
+          {loading && (
+            <p className="p-2 text-xs text-muted-foreground">Searching…</p>
+          )}
+          {error && (
+            <p className="p-2 text-xs text-destructive">{error.message}</p>
+          )}
+
+          <ul role="listbox" className="divide-y divide-border">
+            {suggestions.map((result, idx) => (
+              <li
+                key={`${result.lat}-${result.lon}-${idx}`}
+                role="option"
+                aria-selected={highlighted === idx}
+                className={`cursor-pointer px-3 py-2 text-sm ${
+                  highlighted === idx ? "bg-accent" : "hover:bg-accent/50"
+                }`}
+                onMouseEnter={() => setHighlighted(idx)}
+                onClick={() => selectResult(result)}
+              >
+                {result.display_name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </form>
+  );
 }
